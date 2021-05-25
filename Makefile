@@ -99,10 +99,12 @@ else
 WHICH = which
 endif
 
-.PHONY: all clean format release debug spotless
+.PHONY: clean format release debug spotless library
 
-all: format $(OUT)/$(EXEC_NAME)
-	@cp $(OUT)/$(EXEC_NAME) .
+library: format $(OUT)/$(EXEC_NAME)
+	@mkdir -p lib/lib
+	@cp $(OUT)/$(EXEC_NAME) lib/lib/lib$(EXEC_NAME)
+	@cp -r include lib
 
 release:
 	$(MAKE) RELEASE=1 all
@@ -110,6 +112,7 @@ release:
 debug: all
 
 clean:
+	@rm -rf lib
 	@rm -rf $(BUILD_DEBUG)
 	@rm -rf $(OUT_DEBUG)
 
