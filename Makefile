@@ -11,7 +11,7 @@
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-EXEC_NAME := unSWF.a
+EXEC_NAME := libNSWF.a
 
 # CC := gcc
 # CXX := g++
