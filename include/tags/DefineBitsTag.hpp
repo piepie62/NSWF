@@ -5,13 +5,19 @@
 
 namespace unSWF::tags
 {
-    class DefineBitsJPEG2Tag : public SwfTag, public CharacterIdTag
+    class DefineBitsTag : public SwfTag, public CharacterIdTag
     {
+        static constexpr unsigned char ERROR_HEADER[] = {0xFF, 0xD9, 0xFF, 0xD8};
+
     public:
-        DefineBitsJPEG2Tag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineBitsTag(SwfStreamReader& reader) : SwfTag(reader)
         {
             characterId = reader.readU16();
             imageData   = reader.readBytes(this->dataSize() - 2);
+            if (!memcmp(ERROR_HEADER, imageData.data(), 4))
+            {
+                imageData.erase(imageData.begin(), imageData.begin() + 4);
+            }
         }
 
         uint16_t getCharacterId() const override { return characterId; }

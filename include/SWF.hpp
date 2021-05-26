@@ -13,7 +13,7 @@ namespace unSWF
     class SWF
     {
     public:
-        SWF(unsigned char* data);
+        SWF(unsigned char* data, size_t size);
 
     private:
         struct SwfHeader

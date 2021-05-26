@@ -21,12 +21,12 @@ namespace unSWF::tags
             reader.readU8();
         }
 
-        int getCharacterId() const override { return textID; }
+        uint16_t getCharacterId() const override { return textID; }
 
     private:
-        int textID;
-        int useFlashType;
-        int gridFit;
+        uint16_t textID;
+        uint8_t useFlashType;
+        uint8_t gridFit;
         float thickness;
         float sharpness;
     };

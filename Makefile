@@ -37,7 +37,7 @@ OUT_RELEASE := out_release
 OUT_DEBUG := out
 
 # Uncomment this to make SOURCES recursive
-# SOURCES_RECURSIVE := 1
+SOURCES_RECURSIVE := 1
 # Note that this is not a recursive folder blacklist (no matter the above setting). It blacklists exactly the folders you specify
 SOURCES_BLACKLIST :=
 SOURCES_FILE_BLACKLIST :=
@@ -122,7 +122,7 @@ spotless: clean
 
 format:
 ifneq ($(strip $(shell $(WHICH) clang-format)),)
-	clang-format -i $(CFILES) $(CPPFILES) $(foreach dir, $(INCLUDES), $(wildcard $(dir)/*.h)) $(foreach dir, $(INCLUDES), $(wildcard $(dir)/*.hpp))
+	clang-format -i $(CFILES) $(CPPFILES) $(foreach dir, $(INCLUDES), $(call rwildcard,$(dir),*.h *.hpp))
 endif
 
 # Add extra file type rules below. Note how to place files in the build and out directories

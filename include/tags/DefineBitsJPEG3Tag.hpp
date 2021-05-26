@@ -14,13 +14,13 @@ namespace unSWF::tags
             characterId       = reader.readU16();
             uint32_t jpegSize = reader.readU32();
             jpegData          = reader.readBytes(jpegSize);
-            alphaData         = reader.readBytes(this->dataSize() - jpegSize - 6);
+            alphaData         = reader.decompressZlibFromStream(dataSize() - jpegSize - 6);
         }
 
-        int getCharacterId() const override { return characterId; };
+        uint16_t getCharacterId() const override { return characterId; };
 
     private:
-        int characterId;
+        uint16_t characterId;
         std::vector<unsigned char> jpegData;
         std::vector<unsigned char> alphaData;
     };
