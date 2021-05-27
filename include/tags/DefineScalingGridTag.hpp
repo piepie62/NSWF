@@ -8,7 +8,8 @@ namespace NSWF::tags
     class DefineScalingGridTag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineScalingGridTag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineScalingGridTag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineScalingGrid, size)
         {
             characterId = reader.readU16();
             splitter    = reader.readRect();

@@ -10,15 +10,7 @@ namespace NSWF::tags
     class SwfTag
     {
     public:
-        SwfTag(SwfStreamReader& reader)
-        {
-            mType     = SwfTagType(reader.readUnsignedBits(10));
-            mDataSize = reader.readUnsignedBits(6);
-            if (mDataSize == 0x3F)
-            {
-                mDataSize = reader.readU32();
-            }
-        }
+        SwfTag(SwfTagType type, size_t dataSize) : mType(type), mDataSize(dataSize) {}
         virtual ~SwfTag() = default;
 
         SwfTagType type() const { return this->mType; }

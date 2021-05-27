@@ -10,7 +10,7 @@ namespace NSWF::tags
         static constexpr unsigned char ERROR_HEADER[] = {0xFF, 0xD9, 0xFF, 0xD8};
 
     public:
-        JPEGTablesTag(SwfStreamReader& reader) : SwfTag(reader)
+        JPEGTablesTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::JPEGTables, size)
         {
             jpegData = reader.readBytes(this->dataSize() - 2);
             if (!memcmp(ERROR_HEADER, jpegData.data(), 4))

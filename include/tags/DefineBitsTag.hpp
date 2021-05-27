@@ -10,7 +10,7 @@ namespace NSWF::tags
         static constexpr unsigned char ERROR_HEADER[] = {0xFF, 0xD9, 0xFF, 0xD8};
 
     public:
-        DefineBitsTag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineBitsTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::DefineBits, size)
         {
             characterId = reader.readU16();
             imageData   = reader.readBytes(this->dataSize() - 2);

@@ -9,7 +9,8 @@ namespace NSWF::tags
     class DefineBinaryDataTag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineBinaryDataTag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineBinaryDataTag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineBinaryData, size)
         {
             characterId = reader.readU16();
             // reserved

@@ -9,7 +9,8 @@ namespace NSWF::tags
     class DefineBitsJPEG4Tag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineBitsJPEG4Tag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineBitsJPEG4Tag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineBitsJPEG4, size)
         {
             characterId       = reader.readU16();
             uint32_t jpegSize = reader.readU32();

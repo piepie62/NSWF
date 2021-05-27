@@ -19,7 +19,8 @@ namespace NSWF::tags
             Justify
         };
 
-        DefineEditTextTag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineEditTextTag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineEditText, size)
         {
             characterId       = reader.readU16();
             bounds            = reader.readRect();

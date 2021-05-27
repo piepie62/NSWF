@@ -9,7 +9,8 @@ namespace NSWF::tags
     class DefineBitsJPEG3Tag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineBitsJPEG3Tag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineBitsJPEG3Tag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineBitsJPEG3, size)
         {
             characterId       = reader.readU16();
             uint32_t jpegSize = reader.readU32();

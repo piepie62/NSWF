@@ -9,7 +9,7 @@ namespace NSWF::tags
     class DefineFont4Tag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineFont4Tag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineFont4Tag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::DefineFont4, size)
         {
             fontId = reader.readU16();
             // Reserved
@@ -31,5 +31,5 @@ namespace NSWF::tags
         bool bold;
         std::string fontName;
         std::optional<std::vector<unsigned char>> fontData;
-    }
+    };
 }

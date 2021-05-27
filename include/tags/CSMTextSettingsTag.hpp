@@ -8,7 +8,8 @@ namespace NSWF::tags
     class CSMTextSettingsTag : public SwfTag, public CharacterIdTag
     {
     public:
-        CSMTextSettingsTag(SwfStreamReader& reader) : SwfTag(reader)
+        CSMTextSettingsTag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::CSMTextSettings, size)
         {
             textID       = reader.readU16();
             useFlashType = reader.readUnsignedBits(2);

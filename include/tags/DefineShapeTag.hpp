@@ -11,7 +11,7 @@ namespace NSWF::tags
     class DefineShapeTag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineShapeTag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineShapeTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::DefineShape, size)
         {
             shapeId     = reader.readU16();
             shapeBounds = reader.readRect();

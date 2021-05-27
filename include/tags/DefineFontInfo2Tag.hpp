@@ -9,7 +9,8 @@ namespace NSWF::tags
     class DefineFontInfo2Tag : public SwfTag, CharacterIdTag
     {
     public:
-        DefineFontInfo2Tag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineFontInfo2Tag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineFontInfo2, size)
         {
             fontId   = reader.readU16();
             fontName = reader.readString(reader.readU8());

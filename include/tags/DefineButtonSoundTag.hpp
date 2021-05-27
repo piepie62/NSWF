@@ -15,7 +15,8 @@ namespace NSWF::tags
     class DefineButtonSoundTag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineButtonSoundTag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineButtonSoundTag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineButtonSound, size)
         {
             buttonId = reader.readU16();
 

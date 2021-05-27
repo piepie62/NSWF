@@ -14,7 +14,8 @@ namespace NSWF::tags
     class DefineBitsLossless2Tag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineBitsLossless2Tag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineBitsLossless2Tag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineBitsLossless2, size)
         {
             characterId        = reader.readU16();
             pixelFormat        = PixelFormat(reader.readU8());
@@ -30,7 +31,7 @@ namespace NSWF::tags
                 pixelFormat == PixelFormat::ColorMap8 ? this->dataSize() - 8
                                                       : this->dataSize() - 7);
 
-            SwfStreamReader bitmapReader{rawData.data()};
+            SwfStreamReader bitmapReader{rawData.data(), rawData.size()};
             switch (pixelFormat)
             {
                 case PixelFormat::ColorMap8:

@@ -7,7 +7,8 @@ namespace NSWF::tags
     class FileAttributesTag : public SwfTag
     {
     public:
-        FileAttributesTag(SwfStreamReader& reader) : SwfTag(reader)
+        FileAttributesTag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::FileAttributes, size)
         {
             // reserved
             reader.readFlag();

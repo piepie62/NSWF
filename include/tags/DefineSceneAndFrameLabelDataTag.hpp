@@ -7,7 +7,8 @@ namespace NSWF::tags
     class DefineSceneAndFrameLabelData : public SwfTag
     {
     public:
-        DefineSceneAndFrameLabelData(SwfStreamReader& reader) : SwfTag(reader)
+        DefineSceneAndFrameLabelData(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineSceneAndFrameLabelData, size)
         {
             uint32_t count = reader.readEncodedU32();
             scenes.reserve(count);

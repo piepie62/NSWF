@@ -11,7 +11,8 @@ namespace NSWF::tags
     class DefineButtonTag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineButtonTag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineButtonTag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineButton, size)
         {
             buttonId = reader.readU16();
             while (reader.readU8() != 0)

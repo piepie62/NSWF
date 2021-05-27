@@ -10,7 +10,8 @@ namespace NSWF::tags
     class DefineButtonCxformTag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineButtonCxformTag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineButtonCxformTag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineButtonCxform, size)
         {
             buttonId       = reader.readU16();
             colorTransform = reader.readCxform();

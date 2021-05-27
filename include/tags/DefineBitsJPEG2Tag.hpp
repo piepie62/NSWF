@@ -8,7 +8,8 @@ namespace NSWF::tags
     class DefineBitsJPEG2Tag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineBitsJPEG2Tag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineBitsJPEG2Tag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineBitsJPEG2, size)
         {
             characterId = reader.readU16();
             imageData   = reader.readBytes(this->dataSize() - 2);

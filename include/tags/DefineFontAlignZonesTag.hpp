@@ -12,7 +12,8 @@ namespace NSWF::tags
     class DefineFontAlignZonesTag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineFontAlignZonesTag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineFontAlignZonesTag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineFontAlignZones, size)
         {
             fontId    = reader.readU16();
             tableHint = CSMTableHint(reader.readUnsignedBits(2));

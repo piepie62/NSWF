@@ -7,7 +7,7 @@ namespace NSWF::tags
     class DebugIdTag : public SwfTag
     {
     public:
-        DebugIdTag(SwfStreamReader& reader) : SwfTag(reader)
+        DebugIdTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::DebugID, size)
         {
             for (auto& byte : debugId)
             {

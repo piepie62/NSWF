@@ -12,7 +12,7 @@ namespace NSWF::tags
     class DefineFont2Tag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineFont2Tag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineFont2Tag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::DefineFont2, size)
         {
             fontId           = reader.readU16();
             bool hasLayout   = reader.readFlag();

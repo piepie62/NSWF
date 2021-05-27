@@ -11,7 +11,7 @@ namespace NSWF::tags
     class DefineSoundTag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineSoundTag(SwfStreamReader& reader) : SwfTag(reader)
+        DefineSoundTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::DefineSound, size)
         {
             soundId             = reader.readU16();
             format              = AudioFormat(reader.readUnsignedBits(4));
