@@ -8,7 +8,7 @@
 NSWF::SWF::SWF(unsigned char* data, size_t size)
 {
     std::vector<unsigned char> possiblyUsedData;
-    SwfStreamReader reader{data};
+    SwfStreamReader reader{data, size};
     reader.readBytes((unsigned char*)header.signature, 3);
     header.version    = reader.readU8();
     header.fileLength = reader.readU32();
@@ -16,12 +16,12 @@ NSWF::SWF::SWF(unsigned char* data, size_t size)
     if (header.signature == "CWS"sv)
     {
         possiblyUsedData = reader.decompressZlibFromStream(size - 8, header.fileLength);
-        reader           = SwfStreamReader{possiblyUsedData.data()};
+        reader           = SwfStreamReader{possiblyUsedData.data(), possiblyUsedData.size()};
     }
     else if (header.signature == "ZWS"sv)
     {
         possiblyUsedData = reader.decompressLzmaFromStream(size - 8, header.fileLength);
-        reader           = SwfStreamReader{possiblyUsedData.data()};
+        reader           = SwfStreamReader{possiblyUsedData.data(), possiblyUsedData.size()};
     }
     else if (header.signature != "FWS"sv)
     {

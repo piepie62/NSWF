@@ -51,9 +51,16 @@ namespace NSWF
         static constexpr size_t DECOMPRESS_BLOCK = 1024;
 
         // NON-OWNING pointer to the data
-        SwfStreamReader(const unsigned char* data)
-            : mData(data), mCurrentByte(0), mBitsLeft(CHAR_BIT)
+        SwfStreamReader(const unsigned char* data, size_t size)
+            : mData(data), mCurrentByte(0), mBitsLeft(CHAR_BIT), mSize(size)
         {
+        }
+
+        // Does not advance the parent stream
+        SwfStreamReader subStream(size_t size)
+        {
+            assert(mCurrentByte + size <= mSize);
+            return SwfStreamReader{mData + mCurrentByte, size};
         }
 
         uintmax_t readUnsignedBits(size_t bits)
@@ -63,14 +70,17 @@ namespace NSWF
             uintmax_t ret = 0;
             while (bits >= mBitsLeft)
             {
+                assert(mCurrentByte < mSize);
                 ret <<= mBitsLeft;
                 ret |= mData[mCurrentByte++] & (UCHAR_MAX >> (CHAR_BIT - mBitsLeft));
 
+                bits -= mBitsLeft;
                 mBitsLeft = CHAR_BIT;
             }
 
             if (bits > 0)
             {
+                assert(mCurrentByte < mSize);
                 ret <<= bits;
                 ret |=
                     (mData[mCurrentByte] >> (CHAR_BIT - bits)) & (UCHAR_MAX >> (CHAR_BIT - bits));
@@ -80,7 +90,7 @@ namespace NSWF
             return ret;
         }
 
-        bool readFlag() { return readFlag(); }
+        bool readFlag() { return (bool)readUnsignedBits(1); }
 
         intmax_t readSignedBits(size_t bits)
         {
@@ -106,6 +116,7 @@ namespace NSWF
         uint8_t readU8()
         {
             alignToByte();
+            assert(mCurrentByte + 1 <= mSize);
             return mData[mCurrentByte++];
         }
         int8_t readS8() { return readU8(); }
@@ -113,6 +124,7 @@ namespace NSWF
         uint16_t readU16()
         {
             alignToByte();
+            assert(mCurrentByte + 2 <= mSize);
             uint16_t ret = uint16_t(mData[mCurrentByte++]) << 8;
             ret |= mData[mCurrentByte++];
             return ret;
@@ -122,6 +134,7 @@ namespace NSWF
         uint32_t readU32()
         {
             alignToByte();
+            assert(mCurrentByte + 4 <= mSize);
             uint32_t ret = uint32_t(mData[mCurrentByte++]) << 24;
             ret |= uint32_t(mData[mCurrentByte++]) << 16;
             ret |= uint32_t(mData[mCurrentByte++]) << 8;
@@ -137,6 +150,7 @@ namespace NSWF
         float readFloat32()
         {
             alignToByte();
+            assert(mCurrentByte + sizeof(float) <= mSize);
             float ret;
             std::memcpy(&ret, &mData[mCurrentByte], sizeof(ret));
             mCurrentByte += sizeof(ret);
@@ -147,6 +161,7 @@ namespace NSWF
         double readFloat64()
         {
             alignToByte();
+            assert(mCurrentByte + sizeof(double) <= mSize);
             double ret;
             std::memcpy(&ret, &mData[mCurrentByte], sizeof(ret));
             mCurrentByte += sizeof(ret);
@@ -198,8 +213,27 @@ namespace NSWF
         void readBytes(unsigned char* data, size_t num)
         {
             alignToByte();
+            assert(mCurrentByte + num <= mSize);
             std::memcpy(data, mData, num);
             mCurrentByte += num;
+        }
+
+        std::string readNTString()
+        {
+            alignToByte();
+            std::string ret((const char*)mData);
+            assert(mCurrentByte + ret.size() + 1 <= mSize);
+            mCurrentByte += ret.size() + 1;
+            return ret;
+        }
+
+        std::string readString(size_t chars)
+        {
+            alignToByte();
+            assert(mCurrentByte + chars <= mSize);
+            std::string ret((const char*)mData, chars);
+            mCurrentByte += chars;
+            return ret;
         }
 
         RECT readRect()
@@ -508,22 +542,6 @@ namespace NSWF
                 }
             }
 
-            return ret;
-        }
-
-        std::string readNTString()
-        {
-            alignToByte();
-            std::string ret((const char*)mData);
-            mCurrentByte += ret.size() + 1;
-            return ret;
-        }
-
-        std::string readString(size_t chars)
-        {
-            alignToByte();
-            std::string ret((const char*)mData, chars);
-            mCurrentByte += chars;
             return ret;
         }
 
@@ -943,5 +961,6 @@ namespace NSWF
         const unsigned char* mData;
         size_t mCurrentByte;
         size_t mBitsLeft;
+        size_t mSize;
     };
 }
