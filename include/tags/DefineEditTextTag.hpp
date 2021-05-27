@@ -23,22 +23,22 @@ namespace NSWF::tags
         {
             characterId       = reader.readU16();
             bounds            = reader.readRect();
-            bool hasText      = (bool)reader.readUnsignedBits(1);
-            wordWrap          = (bool)reader.readUnsignedBits(1);
-            multiLine         = (bool)reader.readUnsignedBits(1);
-            isPassword        = (bool)reader.readUnsignedBits(1);
-            readOnly          = (bool)reader.readUnsignedBits(1);
-            bool hasTextColor = (bool)reader.readUnsignedBits(1);
-            bool hasMaxLength = (bool)reader.readUnsignedBits(1);
-            bool hasFont      = (bool)reader.readUnsignedBits(1);
-            bool hasFontClass = (bool)reader.readUnsignedBits(1);
-            autoSize          = (bool)reader.readUnsignedBits(1);
-            bool hasLayout    = (bool)reader.readUnsignedBits(1);
-            noSelect          = (bool)reader.readUnsignedBits(1);
-            border            = (bool)reader.readUnsignedBits(1);
-            wasStatic         = (bool)reader.readUnsignedBits(1);
-            html              = (bool)reader.readUnsignedBits(1);
-            useOutlines       = (bool)reader.readUnsignedBits(1);
+            bool hasText      = reader.readFlag();
+            wordWrap          = reader.readFlag();
+            multiLine         = reader.readFlag();
+            isPassword        = reader.readFlag();
+            readOnly          = reader.readFlag();
+            bool hasTextColor = reader.readFlag();
+            bool hasMaxLength = reader.readFlag();
+            bool hasFont      = reader.readFlag();
+            bool hasFontClass = reader.readFlag();
+            autoSize          = reader.readFlag();
+            bool hasLayout    = reader.readFlag();
+            noSelect          = reader.readFlag();
+            border            = reader.readFlag();
+            wasStatic         = reader.readFlag();
+            html              = reader.readFlag();
+            useOutlines       = reader.readFlag();
 
             if (hasFont)
             {

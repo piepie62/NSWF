@@ -10,14 +10,14 @@ namespace NSWF::tags
         FileAttributesTag(SwfStreamReader& reader) : SwfTag(reader)
         {
             // reserved
-            reader.readUnsignedBits(1);
-            mUseDirectBlit = reader.readUnsignedBits(1);
-            mUseGpu        = reader.readUnsignedBits(1);
-            mHasMetadata   = reader.readUnsignedBits(1);
-            mAS3           = reader.readUnsignedBits(1);
+            reader.readFlag();
+            mUseDirectBlit = reader.readFlag();
+            mUseGpu        = reader.readFlag();
+            mHasMetadata   = reader.readFlag();
+            mAS3           = reader.readFlag();
             // reserved
             reader.readUnsignedBits(2);
-            mUseNetwork = reader.readUnsignedBits(1);
+            mUseNetwork = reader.readFlag();
             reader.readUnsignedBits(24);
         }
 

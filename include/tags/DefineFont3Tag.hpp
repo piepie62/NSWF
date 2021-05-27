@@ -15,14 +15,14 @@ namespace NSWF::tags
         DefineFont3Tag(SwfStreamReader& reader) : SwfTag(reader)
         {
             fontId           = reader.readU16();
-            bool hasLayout   = (bool)reader.readUnsignedBits(1);
-            shiftJIS         = (bool)reader.readUnsignedBits(1);
-            smallText        = (bool)reader.readUnsignedBits(1);
-            ANSI             = (bool)reader.readUnsignedBits(1);
-            bool wideOffsets = (bool)reader.readUnsignedBits(1);
-            bool wideCodes   = (bool)reader.readUnsignedBits(1);
-            italic           = (bool)reader.readUnsignedBits(1);
-            bold             = (bool)reader.readUnsignedBits(1);
+            bool hasLayout   = reader.readFlag();
+            shiftJIS         = reader.readFlag();
+            smallText        = reader.readFlag();
+            ANSI             = reader.readFlag();
+            bool wideOffsets = reader.readFlag();
+            bool wideCodes   = reader.readFlag();
+            italic           = reader.readFlag();
+            bold             = reader.readFlag();
             language         = reader.readU8();
             fontName         = reader.readString(reader.readU8());
             int numGlyphs    = reader.readU16();

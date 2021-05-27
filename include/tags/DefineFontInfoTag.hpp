@@ -15,13 +15,13 @@ namespace NSWF::tags
             fontName = reader.readString(reader.readU8());
             // reserved
             reader.readUnsignedBits(2);
-            smallText = (bool)reader.readUnsignedBits(1);
-            shiftJIS  = (bool)reader.readUnsignedBits(1);
-            ANSI      = (bool)reader.readUnsignedBits(1);
-            italic    = (bool)reader.readUnsignedBits(1);
-            bold      = (bool)reader.readUnsignedBits(1);
+            smallText = reader.readFlag();
+            shiftJIS  = reader.readFlag();
+            ANSI      = reader.readFlag();
+            italic    = reader.readFlag();
+            bold      = reader.readFlag();
 
-            bool wideCharCodes = (bool)reader.readUnsignedBits(1);
+            bool wideCharCodes = reader.readFlag();
             size_t nChars      = this->dataSize() - 4 - fontName.size();
 
             if (wideCharCodes)

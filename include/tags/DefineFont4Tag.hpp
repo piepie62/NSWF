@@ -14,9 +14,9 @@ namespace NSWF::tags
             fontId = reader.readU16();
             // Reserved
             reader.readUnsignedBits(5);
-            bool hasFontData = (bool)reader.readUnsignedBits(1);
-            italic           = (bool)reader.readUnsignedBits(1);
-            bold             = (bool)reader.readUnsignedBits(1);
+            bool hasFontData = reader.readFlag();
+            italic           = reader.readFlag();
+            bold             = reader.readFlag();
             fontName         = reader.readNTString();
             if (hasFontData)
             {

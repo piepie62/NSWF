@@ -16,7 +16,7 @@ namespace NSWF::tags
             buttonId = reader.readU16();
             // reserved
             reader.readUnsignedBits(7);
-            trackAsMenu           = (bool)reader.readUnsignedBits(1);
+            trackAsMenu           = reader.readFlag();
             uint16_t actionOffset = reader.readU16();
             while (reader.readU8() != 0)
             {
