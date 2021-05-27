@@ -30,7 +30,6 @@ std::vector<unsigned char> unSWF::SwfStreamReader::decompressZlibFromStream(
             throw std::invalid_argument("Could not decompress data");
         }
 
-        size_t leftoverSpace = stream.avail_out;
         ret.resize(ret.size() + DECOMPRESS_BLOCK);
         stream.avail_out += DECOMPRESS_BLOCK;
         stream.next_out = ret.data() + ret.size() - stream.avail_out;
@@ -72,7 +71,6 @@ std::vector<unsigned char> unSWF::SwfStreamReader::decompressLzmaFromStream(
             throw std::invalid_argument("Could not finish decoding");
         }
 
-        size_t leftoverSpace = stream.avail_out;
         ret.resize(ret.size() + DECOMPRESS_BLOCK);
         stream.avail_out += DECOMPRESS_BLOCK;
         stream.next_out = ret.data() + ret.size() - stream.avail_out;

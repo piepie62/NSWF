@@ -15,7 +15,9 @@
 #include "types/RECT.hpp"
 #include "types/RGB.hpp"
 #include "types/RGBA.hpp"
+#include "types/SHAPE.hpp"
 #include "types/SHAPERECORD.hpp"
+#include "types/SHAPEWITHSTYLE.hpp"
 #include "types/SOUNDENVELOPE.hpp"
 #include "types/SOUNDINFO.hpp"
 #include "types/basic/fixed16.hpp"
@@ -516,7 +518,7 @@ namespace unSWF
             return ret;
         }
 
-        SHAPERECORD readShapeRecord(int shapeNumber, int& fillBits, int& lineBits)
+        SHAPERECORD readShapeRecord(int shapeTagNumber, int& fillBits, int& lineBits)
         {
             if ((bool)readUnsignedBits(1)) // Is an edge
             {
@@ -586,8 +588,8 @@ namespace unSWF
                     }
                     if (stateNewStyles)
                     {
-                        ret.fillStyles = readFillStyleArray(shapeNumber >= 3);
-                        ret.lineStyles = readLineStyleArray(shapeNumber);
+                        ret.fillStyles = readFillStyleArray(shapeTagNumber >= 3);
+                        ret.lineStyles = readLineStyleArray(shapeTagNumber);
                         fillBits       = (int)readUnsignedBits(4);
                         lineBits       = (int)readUnsignedBits(4);
                     }
@@ -707,14 +709,14 @@ namespace unSWF
         }
 
         std::variant<std::vector<LINESTYLE>, std::vector<LINESTYLE2>> readLineStyleArray(
-            int shapeNumber)
+            int shapeTagNumber)
         {
             int count = readU8();
             if (count == 0xFF)
             {
                 count = readU16();
             }
-            if (shapeNumber == 4)
+            if (shapeTagNumber == 4)
             {
                 std::vector<LINESTYLE2> ret(count);
                 for (auto& style : ret)
@@ -728,10 +730,40 @@ namespace unSWF
                 std::vector<LINESTYLE> ret(count);
                 for (auto& style : ret)
                 {
-                    style = readLineStyle(count == 3);
+                    style = readLineStyle(shapeTagNumber == 3);
                 }
                 return ret;
             }
+        }
+
+        SHAPE readShape(int shapeTagNumber)
+        {
+            int numFillBits = (int)readUnsignedBits(4);
+            int numLineBits = (int)readUnsignedBits(4);
+            SHAPE ret{{readShapeRecord(shapeTagNumber, numFillBits, numLineBits)}};
+            while (ret.records.back().record.index() != 0)
+            {
+                ret.records.emplace_back(readShapeRecord(shapeTagNumber, numFillBits, numLineBits));
+            }
+
+            return ret;
+        }
+
+        SHAPEWITHSTYLE readShapeWithStyle(int shapeTagNumber)
+        {
+            SHAPEWITHSTYLE ret{
+                readFillStyleArray(shapeTagNumber >= 3), readLineStyleArray(shapeTagNumber)};
+
+            int numFillBits = (int)readUnsignedBits(4);
+            int numLineBits = (int)readUnsignedBits(4);
+
+            ret.records.emplace_back(readShapeRecord(shapeTagNumber, numFillBits, numLineBits));
+            while (ret.records.back().record.index() != 0)
+            {
+                ret.records.emplace_back(readShapeRecord(shapeTagNumber, numFillBits, numLineBits));
+            }
+
+            return ret;
         }
 
         std::vector<unsigned char> decompressZlibFromStream(
@@ -743,6 +775,6 @@ namespace unSWF
     private:
         const unsigned char* mData;
         size_t mCurrentByte;
-        int mBitsLeft;
+        size_t mBitsLeft;
     };
 }
