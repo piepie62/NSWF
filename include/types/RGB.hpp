@@ -4,7 +4,7 @@
 #include "RGBA.hpp"
 #include <cstdint>
 
-namespace unSWF
+namespace NSWF
 {
     struct RGB
     {

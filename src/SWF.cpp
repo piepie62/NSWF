@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <string_view>
 
-unSWF::SWF::SWF(unsigned char* data, size_t size)
+NSWF::SWF::SWF(unsigned char* data, size_t size)
 {
     std::vector<unsigned char> possiblyUsedData;
     SwfStreamReader reader{data};

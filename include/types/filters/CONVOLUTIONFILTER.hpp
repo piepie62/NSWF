@@ -3,7 +3,7 @@
 #include "types/RGBA.hpp"
 #include <vector>
 
-namespace unSWF
+namespace NSWF
 {
     struct CONVOLUTIONFILTER
     {

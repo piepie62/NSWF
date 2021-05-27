@@ -5,7 +5,7 @@
 #include "types/basic/fixed32.hpp"
 #include <cstdint>
 
-namespace unSWF
+namespace NSWF
 {
     struct DROPSHADOWFILTER
     {

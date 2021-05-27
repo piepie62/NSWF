@@ -8,7 +8,7 @@
 #include <string_view>
 #include <vector>
 
-namespace unSWF
+namespace NSWF
 {
     class SWF
     {
@@ -25,6 +25,6 @@ namespace unSWF
             uint16_t frameRate;
             uint16_t frameCount;
         } header;
-        std::vector<std::unique_ptr<unSWF::tags::SwfTag>> tags;
+        std::vector<std::unique_ptr<NSWF::tags::SwfTag>> tags;
     };
 }

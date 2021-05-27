@@ -3,7 +3,7 @@
 #include "PIX15.hpp"
 #include <vector>
 
-namespace unSWF
+namespace NSWF
 {
     struct BITMAPDATA15
     {

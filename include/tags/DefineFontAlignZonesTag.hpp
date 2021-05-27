@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineFontAlignZonesTag : public SwfTag, public CharacterIdTag
     {

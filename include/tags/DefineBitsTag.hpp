@@ -3,7 +3,7 @@
 #include "tags/abstract/CharacterIdTag.hpp"
 #include "tags/abstract/SwfTag.hpp"
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineBitsTag : public SwfTag, public CharacterIdTag
     {

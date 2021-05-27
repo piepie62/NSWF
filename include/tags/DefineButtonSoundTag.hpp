@@ -10,7 +10,7 @@
     if (soundChar##n)                                                                              \
     soundInfo##n = reader.readSoundInfo()
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineButtonSoundTag : public SwfTag, public CharacterIdTag
     {

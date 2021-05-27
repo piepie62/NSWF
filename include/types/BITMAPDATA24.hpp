@@ -3,7 +3,7 @@
 #include "PIX24.hpp"
 #include <vector>
 
-namespace unSWF
+namespace NSWF
 {
     struct BITMAPDATA24
     {

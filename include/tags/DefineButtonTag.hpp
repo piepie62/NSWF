@@ -6,7 +6,7 @@
 #include "types/BUTTONRECORD.hpp"
 #include <vector>
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineButtonTag : public SwfTag, public CharacterIdTag
     {

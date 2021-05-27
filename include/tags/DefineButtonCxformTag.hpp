@@ -5,7 +5,7 @@
 #include "types/CXFORM.hpp"
 #include <vector>
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineButtonCxformTag : public SwfTag, public CharacterIdTag
     {

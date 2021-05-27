@@ -6,7 +6,7 @@
 #include <optional>
 #include <string>
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineEditTextTag : public SwfTag, public CharacterIdTag
     {

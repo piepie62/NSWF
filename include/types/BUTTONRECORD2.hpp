@@ -4,7 +4,7 @@
 #include "FILTERLIST.hpp"
 #include "MATRIX.hpp"
 
-namespace unSWF
+namespace NSWF
 {
     struct BUTTONRECORD2
     {

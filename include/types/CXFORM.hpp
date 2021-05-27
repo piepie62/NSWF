@@ -1,6 +1,6 @@
 #pragma once
 
-namespace unSWF
+namespace NSWF
 {
     struct CXFORM
     {

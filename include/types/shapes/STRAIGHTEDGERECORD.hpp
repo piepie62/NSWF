@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <optional>
 
-namespace unSWF
+namespace NSWF
 {
     struct STRAIGHTEDGERECORD
     {

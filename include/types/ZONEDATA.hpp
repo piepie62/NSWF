@@ -2,7 +2,7 @@
 
 #include "types/basic/float16.hpp"
 
-namespace unSWF
+namespace NSWF
 {
     struct ZONEDATA
     {

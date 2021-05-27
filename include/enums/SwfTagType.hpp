@@ -1,6 +1,6 @@
 #pragma once
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     enum class SwfTagType
     {

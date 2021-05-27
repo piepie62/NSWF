@@ -34,7 +34,7 @@
 #include <string>
 #include <vector>
 
-namespace unSWF
+namespace NSWF
 {
     class SwfStreamReader
     {

@@ -3,7 +3,7 @@
 #include "types/RGB.hpp"
 #include <vector>
 
-namespace unSWF
+namespace NSWF
 {
     template <typename ColorElement>
     struct COLORMAPDATA

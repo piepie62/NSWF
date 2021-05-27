@@ -7,7 +7,7 @@
 #include "RGBA.hpp"
 #include <optional>
 
-namespace unSWF
+namespace NSWF
 {
     struct FILLSTYLE
     {

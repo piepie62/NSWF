@@ -4,7 +4,7 @@
 #include "tags/abstract/SwfTag.hpp"
 #include <cstdint>
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineFontInfoTag : public SwfTag, CharacterIdTag
     {

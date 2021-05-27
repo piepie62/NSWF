@@ -3,7 +3,7 @@
 #include "FILTER.hpp"
 #include <vector>
 
-namespace unSWF
+namespace NSWF
 {
     struct FILTERLIST
     {

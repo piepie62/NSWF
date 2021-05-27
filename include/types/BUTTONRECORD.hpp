@@ -2,7 +2,7 @@
 
 #include "MATRIX.hpp"
 
-namespace unSWF
+namespace NSWF
 {
     struct BUTTONRECORD
     {

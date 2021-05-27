@@ -11,7 +11,7 @@
 #include "types/filters/GRADIENTGLOWFILTER.hpp"
 #include <variant>
 
-namespace unSWF
+namespace NSWF
 {
     struct FILTER
     {

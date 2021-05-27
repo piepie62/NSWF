@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace unSWF
+namespace NSWF
 {
     struct GRADIENTGLOWFILTER
     {

@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <variant>
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineBitsLossless2Tag : public SwfTag, public CharacterIdTag
     {

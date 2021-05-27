@@ -3,7 +3,7 @@
 #include "ARGB.hpp"
 #include <vector>
 
-namespace unSWF
+namespace NSWF
 {
     struct ALPHABITMAPDATA
     {

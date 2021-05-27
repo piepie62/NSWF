@@ -7,7 +7,7 @@
 #include <optional>
 #include <variant>
 
-namespace unSWF
+namespace NSWF
 {
     struct LINESTYLE2
     {

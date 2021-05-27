@@ -4,7 +4,7 @@
 #include "tags/abstract/SwfTag.hpp"
 #include "types/SHAPE.hpp"
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineFontTag : public SwfTag, public CharacterIdTag
     {

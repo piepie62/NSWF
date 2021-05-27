@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class CharacterIdTag
     {

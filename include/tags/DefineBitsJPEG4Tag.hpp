@@ -4,7 +4,7 @@
 #include "tags/abstract/SwfTag.hpp"
 #include <vector>
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineBitsJPEG4Tag : public SwfTag, public CharacterIdTag
     {

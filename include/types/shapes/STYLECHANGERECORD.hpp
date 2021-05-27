@@ -8,7 +8,7 @@
 #include <variant>
 #include <vector>
 
-namespace unSWF
+namespace NSWF
 {
     struct STYLECHANGERECORD
     {

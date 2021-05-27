@@ -7,7 +7,7 @@
 #include "types/SHAPE.hpp"
 #include <cstdint>
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DefineFont2Tag : public SwfTag, public CharacterIdTag
     {

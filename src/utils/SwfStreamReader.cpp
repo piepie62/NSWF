@@ -3,7 +3,7 @@
 #include "zlib.h"
 #include <stdexcept>
 
-std::vector<unsigned char> unSWF::SwfStreamReader::decompressZlibFromStream(
+std::vector<unsigned char> NSWF::SwfStreamReader::decompressZlibFromStream(
     size_t compressedBytes, size_t startingAlloc)
 {
     alignToByte();
@@ -44,7 +44,7 @@ std::vector<unsigned char> unSWF::SwfStreamReader::decompressZlibFromStream(
     return ret;
 }
 
-std::vector<unsigned char> unSWF::SwfStreamReader::decompressLzmaFromStream(
+std::vector<unsigned char> NSWF::SwfStreamReader::decompressLzmaFromStream(
     size_t compressedSize, size_t startingAlloc)
 {
     alignToByte();

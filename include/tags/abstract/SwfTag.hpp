@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class SwfTag
     {

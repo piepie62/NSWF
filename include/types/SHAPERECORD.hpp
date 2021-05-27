@@ -6,7 +6,7 @@
 #include "types/shapes/STYLECHANGERECORD.hpp"
 #include <variant>
 
-namespace unSWF
+namespace NSWF
 {
     struct SHAPERECORD
     {

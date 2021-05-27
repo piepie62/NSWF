@@ -2,7 +2,7 @@
 
 #include "tags/abstract/SwfTag.hpp"
 
-namespace unSWF::tags
+namespace NSWF::tags
 {
     class DebugIdTag : public SwfTag
     {
