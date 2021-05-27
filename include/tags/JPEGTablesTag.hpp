@@ -19,7 +19,6 @@ namespace unSWF::tags
             }
         }
 
-    private:
         std::vector<unsigned char> jpegData;
     };
 }

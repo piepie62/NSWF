@@ -22,7 +22,6 @@ namespace unSWF::tags
 
         uint16_t getCharacterId() const override { return characterId; }
 
-    private:
         uint16_t characterId;
         std::vector<unsigned char> imageData;
     };

@@ -2,6 +2,7 @@
 
 #include "types/ACTIONRECORD.hpp"
 #include "types/ARGB.hpp"
+#include "types/BUTTONCONDACTION.hpp"
 #include "types/BUTTONRECORD.hpp"
 #include "types/BUTTONRECORD2.hpp"
 #include "types/CXFORM.hpp"
@@ -14,11 +15,18 @@
 #include "types/RECT.hpp"
 #include "types/RGB.hpp"
 #include "types/RGBA.hpp"
+#include "types/SHAPERECORD.hpp"
+#include "types/SOUNDENVELOPE.hpp"
+#include "types/SOUNDINFO.hpp"
+#include "types/basic/fixed16.hpp"
+#include "types/basic/fixed32.hpp"
+#include "types/basic/float16.hpp"
 #include <cassert>
 #include <climits>
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 namespace unSWF
@@ -27,6 +35,8 @@ namespace unSWF
     {
     public:
         static_assert(CHAR_BIT == 8);
+        static_assert(sizeof(float) == 4);
+        static_assert(sizeof(double) == 8);
 
         static constexpr size_t DECOMPRESS_BLOCK = 1024;
 
@@ -110,23 +120,57 @@ namespace unSWF
         int32_t readS32() { return readS32(); }
 
         // If necessary, will change to actual 16-bit floats
-        uint16_t readF16() { return readU16(); }
+        float16 readFloat16() { return {readU16()}; }
 
-        float readF32()
+        float readFloat32()
         {
-            uint32_t read = readU32();
+            alignToByte();
             float ret;
-            std::memcpy(&ret, &read, sizeof(ret));
+            std::memcpy(&ret, &mData[mCurrentByte], sizeof(ret));
+            mCurrentByte += sizeof(ret);
 
             return ret;
         }
 
-        double readF64()
+        double readFloat64()
         {
-            uint64_t read = (uint64_t(readU32()) << 32) | readU32();
+            alignToByte();
             double ret;
-            std::memcpy(&ret, &read, sizeof(ret));
+            std::memcpy(&ret, &mData[mCurrentByte], sizeof(ret));
+            mCurrentByte += sizeof(ret);
 
+            return ret;
+        }
+        double readDouble() { return readFloat64(); }
+
+        fixed16 readFixed16() { return {readU16()}; }
+
+        fixed32 readFixed32() { return {readU32()}; }
+
+        uint32_t readEncodedU32()
+        {
+            alignToByte();
+            uint32_t ret = readU8();
+            if (!(ret & 0x00000080))
+            {
+                return ret;
+            }
+            ret = (ret & 0x0000007f) | uint32_t(readU8()) << 7;
+            if (!(ret & 0x00004000))
+            {
+                return ret;
+            }
+            ret = (ret & 0x00003fff) | uint32_t(readU8()) << 14;
+            if (!(ret & 0x00200000))
+            {
+                return ret;
+            }
+            ret = (ret & 0x001fffff) | uint32_t(readU8()) << 21;
+            if (!(ret & 0x10000000))
+            {
+                return ret;
+            }
+            ret = (ret & 0x0fffffff) | uint32_t(readU8()) << 28;
             return ret;
         }
 
@@ -260,7 +304,7 @@ namespace unSWF
                     COLORMATRIXFILTER ret;
                     for (auto& color : ret.matrix)
                     {
-                        color = readF32();
+                        color = readFloat32();
                     }
                     return {ret};
                 }
@@ -269,12 +313,12 @@ namespace unSWF
                     CONVOLUTIONFILTER ret;
                     ret.matrixX = readU8();
                     ret.matrixY = readU8();
-                    ret.divisor = readF32();
-                    ret.bias    = readF32();
+                    ret.divisor = readFloat32();
+                    ret.bias    = readFloat32();
                     ret.matrix  = std::vector<float>(ret.matrixX * ret.matrixY);
                     for (auto& val : ret.matrix)
                     {
-                        val = readF32();
+                        val = readFloat32();
                     }
                     ret.defaultColor = readRGBA();
                     // reserved
@@ -308,11 +352,11 @@ namespace unSWF
                     {
                         ratio = readU8();
                     }
-                    ret.blurX           = readU32();
-                    ret.blurY           = readU32();
-                    ret.angle           = readU32();
-                    ret.distance        = readU32();
-                    ret.strength        = readU16();
+                    ret.blurX           = readFixed32();
+                    ret.blurY           = readFixed32();
+                    ret.angle           = readFixed32();
+                    ret.distance        = readFixed32();
+                    ret.strength        = readFixed16();
                     ret.innerShadow     = (bool)readUnsignedBits(1);
                     ret.knockout        = (bool)readUnsignedBits(1);
                     ret.compositeSource = (bool)readUnsignedBits(1);
@@ -334,11 +378,11 @@ namespace unSWF
                     {
                         ratio = readU8();
                     }
-                    ret.blurX           = readU32();
-                    ret.blurY           = readU32();
-                    ret.angle           = readU32();
-                    ret.distance        = readU32();
-                    ret.strength        = readU16();
+                    ret.blurX           = readFixed32();
+                    ret.blurY           = readFixed32();
+                    ret.angle           = readFixed32();
+                    ret.distance        = readFixed32();
+                    ret.strength        = readFixed16();
                     ret.innerShadow     = (bool)readUnsignedBits(1);
                     ret.knockout        = (bool)readUnsignedBits(1);
                     ret.compositeSource = (bool)readUnsignedBits(1);
@@ -412,6 +456,282 @@ namespace unSWF
                 return ACTIONRECORD{code, readBytes(length)};
             }
             return ACTIONRECORD{code};
+        }
+
+        BUTTONCONDACTION readButtonCondAction()
+        {
+            BUTTONCONDACTION ret{readU16(), (bool)readUnsignedBits(1), (bool)readUnsignedBits(1),
+                (bool)readUnsignedBits(1), (bool)readUnsignedBits(1), (bool)readUnsignedBits(1),
+                (bool)readUnsignedBits(1), (bool)readUnsignedBits(1), (bool)readUnsignedBits(1),
+                (uint8_t)readUnsignedBits(7), (bool)readUnsignedBits(1)};
+
+            while (readU8() != 0)
+            {
+                backtrack();
+                ret.actions.emplace_back(readActionRecord());
+            }
+
+            return ret;
+        }
+
+        SOUNDENVELOPE readSoundEnvelope() { return SOUNDENVELOPE{readU32(), readU16(), readU16()}; }
+
+        SOUNDINFO readSoundInfo()
+        {
+            // reserved
+            readUnsignedBits(2);
+            SOUNDINFO ret{(bool)readUnsignedBits(1), (bool)readUnsignedBits(1),
+                (bool)readUnsignedBits(1), (bool)readUnsignedBits(1), (bool)readUnsignedBits(1),
+                (bool)readUnsignedBits(1)};
+
+            if (ret.hasInPoint)
+            {
+                ret.inPoint = readU32();
+            }
+            if (ret.hasOutPoint)
+            {
+                ret.outPoint = readU32();
+            }
+            if (ret.hasLoops)
+            {
+                ret.loopCount = readU16();
+            }
+            if (ret.hasEnvelope)
+            {
+                ret.envelopeRecords = std::vector<SOUNDENVELOPE>(readU8());
+                for (auto& envelope : ret.envelopeRecords)
+                {
+                    envelope = readSoundEnvelope();
+                }
+            }
+
+            return ret;
+        }
+
+        std::string readNTString()
+        {
+            alignToByte();
+            std::string ret{(const char*)mData};
+            mCurrentByte += ret.size() + 1;
+            return ret;
+        }
+
+        SHAPERECORD readShapeRecord(int shapeNumber, int& fillBits, int& lineBits)
+        {
+            if ((bool)readUnsignedBits(1)) // Is an edge
+            {
+                if ((bool)readUnsignedBits(1)) // is straight
+                {
+                    int numBits      = (int)readUnsignedBits(4) + 2;
+                    bool generalLine = (bool)readUnsignedBits(1);
+                    if (generalLine)
+                    {
+                        return SHAPERECORD{
+                            STRAIGHTEDGERECORD{readSignedBits(numBits), readSignedBits(numBits)}};
+                    }
+                    else
+                    {
+                        if ((bool)readUnsignedBits(1)) // is vertical
+                        {
+                            return SHAPERECORD{
+                                STRAIGHTEDGERECORD{std::nullopt, readSignedBits(numBits)}};
+                        }
+                        else
+                        {
+                            return SHAPERECORD{STRAIGHTEDGERECORD{readSignedBits(numBits)}};
+                        }
+                    }
+                }
+                else
+                {
+                    int numBits = readUnsignedBits(4) + 2;
+                    return SHAPERECORD{CURVEDEDGERECORD{(int32_t)readSignedBits(numBits),
+                        (int32_t)readSignedBits(numBits), (int32_t)readSignedBits(numBits),
+                        (int32_t)readSignedBits(numBits)}};
+                }
+            }
+            else
+            {
+                bool stateNewStyles  = (bool)readUnsignedBits(1);
+                bool stateLineStyle  = (bool)readUnsignedBits(1);
+                bool stateFillStyle1 = (bool)readUnsignedBits(1);
+                bool stateFillStyle0 = (bool)readUnsignedBits(1);
+                bool stateMoveTo     = (bool)readUnsignedBits(1);
+
+                if (!stateNewStyles && !stateLineStyle && !stateFillStyle0 && !stateFillStyle1 &&
+                    !stateMoveTo)
+                {
+                    return SHAPERECORD{ENDSHAPERECORD{}};
+                }
+                else
+                {
+                    STYLECHANGERECORD ret;
+                    if (stateMoveTo)
+                    {
+                        int bits       = (int)readUnsignedBits(5);
+                        ret.moveDeltaX = (int32_t)readSignedBits(bits);
+                        ret.moveDeltaY = (int32_t)readSignedBits(bits);
+                    }
+                    if (stateFillStyle0)
+                    {
+                        ret.fillStyle0 = (uint16_t)readUnsignedBits(fillBits);
+                    }
+                    if (stateFillStyle1)
+                    {
+                        ret.fillStyle1 = (uint16_t)readUnsignedBits(fillBits);
+                    }
+                    if (stateLineStyle)
+                    {
+                        ret.lineStyle = (uint16_t)readUnsignedBits(lineBits);
+                    }
+                    if (stateNewStyles)
+                    {
+                        ret.fillStyles = readFillStyleArray(shapeNumber >= 3);
+                        ret.lineStyles = readLineStyleArray(shapeNumber);
+                        fillBits       = (int)readUnsignedBits(4);
+                        lineBits       = (int)readUnsignedBits(4);
+                    }
+
+                    return SHAPERECORD{ret};
+                }
+            }
+        }
+
+        FILLSTYLE readFillStyle(bool rgba)
+        {
+            FILLSTYLE ret{FILLSTYLE::Type(readU8())};
+            if (ret.type == FILLSTYLE::Type::Solid)
+            {
+                ret.color = rgba ? readRGBA() : readRGB();
+            }
+            else if (ret.type == FILLSTYLE::Type::LinearGradient ||
+                     ret.type == FILLSTYLE::Type::RadialGradient)
+            {
+                ret.gradientMatrix = readMatrix();
+                ret.gradient       = readGradient(rgba);
+            }
+            else if (ret.type == FILLSTYLE::Type::FocalGradient)
+            {
+                ret.gradientMatrix = readMatrix();
+                ret.focalGradient  = readFocalGradient(rgba);
+            }
+            else if (ret.type == FILLSTYLE::Type::RepeatingBitmap ||
+                     ret.type == FILLSTYLE::Type::ClippedBitmap ||
+                     ret.type == FILLSTYLE::Type::NonSmoothedRepeatingBitmap ||
+                     ret.type == FILLSTYLE::Type::NonSmoothedClippedBitmap)
+            {
+                ret.bitmapId     = readU16();
+                ret.bitmapMatrix = readMatrix();
+            }
+
+            return ret;
+        }
+
+        std::vector<FILLSTYLE> readFillStyleArray(bool rgba)
+        {
+            int num = readU8();
+            if (num == 0xFF)
+            {
+                num = readU16();
+            }
+            std::vector<FILLSTYLE> ret(num);
+            for (auto& style : ret)
+            {
+                style = readFillStyle(rgba);
+            }
+
+            return ret;
+        }
+
+        GRADIENT readGradient(bool rgba)
+        {
+            GRADIENT ret{GRADIENT::SpreadMode(readUnsignedBits(2)),
+                GRADIENT::InterpolationMode(readUnsignedBits(2))};
+            int gradients       = (int)readUnsignedBits(4);
+            ret.gradientRecords = std::vector<GRADRECORD>(gradients);
+            for (auto& record : ret.gradientRecords)
+            {
+                record = readGradRecord(rgba);
+            }
+
+            return ret;
+        }
+
+        FOCALGRADIENT readFocalGradient(bool rgba)
+        {
+            FOCALGRADIENT ret{FOCALGRADIENT::SpreadMode(readUnsignedBits(2)),
+                FOCALGRADIENT::InterpolationMode(readUnsignedBits(2))};
+            int gradients       = (int)readUnsignedBits(4);
+            ret.gradientRecords = std::vector<GRADRECORD>(gradients);
+            for (auto& record : ret.gradientRecords)
+            {
+                record = readGradRecord(rgba);
+            }
+            ret.focalPoint = readFixed16();
+
+            return ret;
+        }
+
+        GRADRECORD readGradRecord(bool rgba) { return {readU8(), rgba ? readRGBA() : readRGB()}; }
+
+        LINESTYLE readLineStyle(bool rgba) { return {readU16(), rgba ? readRGBA() : readRGB()}; }
+
+        LINESTYLE2 readLineStyle2()
+        {
+            LINESTYLE2 ret{readU16(), LINESTYLE2::CapStyle(readUnsignedBits(2)),
+                LINESTYLE2::JoinStyle(readUnsignedBits(2))};
+
+            bool hasFill              = (bool)readUnsignedBits(1);
+            ret.noHorizThicknessScale = (bool)readUnsignedBits(1);
+            ret.noVertThicknessScale  = (bool)readUnsignedBits(1);
+            ret.pixelHinting          = (bool)readUnsignedBits(1);
+            // reserved
+            readUnsignedBits(5);
+            ret.noClose     = (bool)readUnsignedBits(1);
+            ret.endCapStyle = LINESTYLE2::CapStyle(readUnsignedBits(2));
+
+            if (ret.joinStyle == LINESTYLE2::JoinStyle::Miter)
+            {
+                ret.miterLimitFactor = readFixed16();
+            }
+            if (hasFill)
+            {
+                ret.fill = readFillStyle(true);
+            }
+            else
+            {
+                ret.fill = readRGBA();
+            }
+
+            return ret;
+        }
+
+        std::variant<std::vector<LINESTYLE>, std::vector<LINESTYLE2>> readLineStyleArray(
+            int shapeNumber)
+        {
+            int count = readU8();
+            if (count == 0xFF)
+            {
+                count = readU16();
+            }
+            if (shapeNumber == 4)
+            {
+                std::vector<LINESTYLE2> ret(count);
+                for (auto& style : ret)
+                {
+                    style = readLineStyle2();
+                }
+                return ret;
+            }
+            else
+            {
+                std::vector<LINESTYLE> ret(count);
+                for (auto& style : ret)
+                {
+                    style = readLineStyle(count == 3);
+                }
+                return ret;
+            }
         }
 
         std::vector<unsigned char> decompressZlibFromStream(

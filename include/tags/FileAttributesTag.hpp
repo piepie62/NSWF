@@ -21,7 +21,6 @@ namespace unSWF::tags
             reader.readUnsignedBits(24);
         }
 
-    private:
         bool mUseDirectBlit;
         bool mUseGpu;
         bool mHasMetadata;

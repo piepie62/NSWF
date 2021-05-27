@@ -1,6 +1,8 @@
 #pragma once
 
 #include "types/RGBA.hpp"
+#include "types/basic/fixed16.hpp"
+#include "types/basic/fixed32.hpp"
 #include <cstdint>
 
 namespace unSWF
@@ -8,9 +10,9 @@ namespace unSWF
     struct GLOWFILTER
     {
         RGBA shadowColor;
-        uint32_t blurX;
-        uint32_t blurY;
-        uint16_t strength;
+        fixed32 blurX;
+        fixed32 blurY;
+        fixed16 strength;
         bool innerGlow;
         bool knockout;
         bool compositeSource;

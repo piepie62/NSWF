@@ -87,7 +87,6 @@ namespace unSWF::tags
 
         uint16_t getCharacterId() const override { return characterId; }
 
-    private:
         uint16_t characterId;
         enum class PixelFormat
         {

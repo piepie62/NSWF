@@ -103,8 +103,8 @@ endif
 
 library: format $(OUT)/$(EXEC_NAME)
 	@mkdir -p lib/lib
-	@cp $(OUT)/$(EXEC_NAME) lib/lib/lib$(EXEC_NAME)
-	@cp -r include lib
+	@cp $(OUT)/$(EXEC_NAME) lib/lib/$(EXEC_NAME)
+	@cp -r $(INCLUDES) lib
 
 release:
 	$(MAKE) RELEASE=1 all

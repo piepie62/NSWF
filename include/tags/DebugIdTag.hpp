@@ -15,7 +15,6 @@ namespace unSWF::tags
             }
         }
 
-    private:
         unsigned char debugId[16];
     };
 }

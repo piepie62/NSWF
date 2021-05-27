@@ -15,15 +15,14 @@ namespace unSWF::tags
             gridFit      = reader.readUnsignedBits(3);
             // reserved
             reader.readUnsignedBits(3);
-            thickness = reader.readF32();
-            sharpness = reader.readF32();
+            thickness = reader.readFloat32();
+            sharpness = reader.readFloat32();
             // reserved
             reader.readU8();
         }
 
         uint16_t getCharacterId() const override { return textID; }
 
-    private:
         uint16_t textID;
         uint8_t useFlashType;
         uint8_t gridFit;

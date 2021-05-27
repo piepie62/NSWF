@@ -1,13 +1,14 @@
 #pragma once
 
+#include "types/basic/fixed32.hpp"
 #include <cstdint>
 
 namespace unSWF
 {
     struct BLURFILTER
     {
-        uint32_t blurX;
-        uint32_t blurY;
+        fixed32 blurX;
+        fixed32 blurY;
         int passes;
     };
 }
