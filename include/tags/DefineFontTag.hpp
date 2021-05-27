@@ -27,6 +27,8 @@ namespace unSWF::tags
             }
         }
 
+        uint16_t getCharacterId() const override { return fontId; }
+
         uint16_t fontId;
         std::vector<uint16_t> offsetTable;
         std::vector<SHAPE> shapeTable;

@@ -42,7 +42,7 @@ SOURCES_RECURSIVE := 1
 SOURCES_BLACKLIST :=
 SOURCES_FILE_BLACKLIST :=
 
-CFLAGS := $(CFLAGS)
+CFLAGS := $(CFLAGS) -Wall -Wextra -Wno-missing-field-initializers
 CXXFLAGS := $(CXXFLAGS) -std=c++17
 LDFLAGS := $(LDFLAGS)
 

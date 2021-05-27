@@ -9,6 +9,7 @@
 #include "types/CXFORMWITHALPHA.hpp"
 #include "types/FILTER.hpp"
 #include "types/FILTERLIST.hpp"
+#include "types/KERNINGRECORD.hpp"
 #include "types/MATRIX.hpp"
 #include "types/PIX15.hpp"
 #include "types/PIX24.hpp"
@@ -20,6 +21,8 @@
 #include "types/SHAPEWITHSTYLE.hpp"
 #include "types/SOUNDENVELOPE.hpp"
 #include "types/SOUNDINFO.hpp"
+#include "types/ZONEDATA.hpp"
+#include "types/ZONERECORD.hpp"
 #include "types/basic/fixed16.hpp"
 #include "types/basic/fixed32.hpp"
 #include "types/basic/float16.hpp"
@@ -513,8 +516,16 @@ namespace unSWF
         std::string readNTString()
         {
             alignToByte();
-            std::string ret{(const char*)mData};
+            std::string ret((const char*)mData);
             mCurrentByte += ret.size() + 1;
+            return ret;
+        }
+
+        std::string readString(size_t chars)
+        {
+            alignToByte();
+            std::string ret((const char*)mData, chars);
+            mCurrentByte += chars;
             return ret;
         }
 
@@ -762,6 +773,26 @@ namespace unSWF
             {
                 ret.records.emplace_back(readShapeRecord(shapeTagNumber, numFillBits, numLineBits));
             }
+
+            return ret;
+        }
+
+        KERNINGRECORD readKerningRecord(bool wideCodes)
+        {
+            return {wideCodes ? readU16() : (uint16_t)readU8(),
+                wideCodes ? readU16() : (uint16_t)readU8(), readS16()};
+        }
+
+        ZONEDATA readZoneData() { return {readFloat16(), readFloat16()}; }
+
+        ZONERECORD readZoneRecord()
+        {
+            int numData = readU8();
+            ZONERECORD ret{std::vector<ZONEDATA>(numData)};
+            // reserved
+            readUnsignedBits(6);
+            ret.hasY = (bool)readUnsignedBits(1);
+            ret.hasX = (bool)readUnsignedBits(1);
 
             return ret;
         }
