@@ -25,6 +25,7 @@ namespace NSWF::tags
 
         struct ImportedAsset
         {
+            ImportedAsset(uint32_t f, std::string&& n) : newCharId(f), name(n) {}
             uint16_t newCharId;
             std::string name;
         };

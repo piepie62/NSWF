@@ -33,5 +33,8 @@ NSWF::SWF::SWF(unsigned char* data, size_t size)
     header.frameRate  = reader.readU16();
     header.frameCount = reader.readU16();
 
-    // Handle tags
+    do
+    {
+        tags.emplace_back(tags::SwfTag::parseTag(reader));
+    } while (tags.back()->type() != tags::SwfTagType::End);
 }

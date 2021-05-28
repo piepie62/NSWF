@@ -7,6 +7,6 @@ namespace NSWF::tags
     class ShowFrameTag : public SwfTag
     {
     public:
-        ShowFrameTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::ShowFrame, size) {}
+        ShowFrameTag(SwfStreamReader&, size_t size) : SwfTag(SwfTagType::ShowFrame, size) {}
     };
 }

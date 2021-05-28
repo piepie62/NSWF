@@ -20,8 +20,9 @@ namespace NSWF::tags
             bool hasColorTransform = reader.readFlag();
             bool hasMatrix         = reader.readFlag();
             bool hasCharacter      = reader.readFlag();
-            bool hasMove           = reader.readFlag();
-            depth                  = reader.readU16();
+            // hasMove, unused
+            reader.readFlag();
+            depth = reader.readU16();
             if (hasCharacter)
             {
                 characterId = reader.readU16();

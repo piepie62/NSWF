@@ -22,6 +22,7 @@ namespace NSWF::tags
 
         struct ExportedAsset
         {
+            ExportedAsset(uint32_t f, std::string&& n) : character(f), name(n) {}
             uint16_t character;
             std::string name;
         };

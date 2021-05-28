@@ -15,7 +15,6 @@ namespace NSWF
     public:
         SWF(unsigned char* data, size_t size);
 
-    private:
         struct SwfHeader
         {
             char signature[3];

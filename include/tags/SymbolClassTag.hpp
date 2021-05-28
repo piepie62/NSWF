@@ -19,12 +19,13 @@ namespace NSWF::tags
             }
         }
 
-        struct ExportedAsset
+        struct Symbol
         {
+            Symbol(uint32_t f, std::string&& n) : character(f), className(n) {}
             uint16_t character;
             std::string className;
         };
 
-        std::vector<ExportedAsset> assets;
+        std::vector<Symbol> assets;
     };
 }

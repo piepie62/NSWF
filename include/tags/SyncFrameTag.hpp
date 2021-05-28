@@ -7,6 +7,6 @@ namespace NSWF::tags
     class SyncFrameTag : public SwfTag
     {
     public:
-        SyncFrameTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::SyncFrame, size) {}
+        SyncFrameTag(SwfStreamReader&, size_t size) : SwfTag(SwfTagType::SyncFrame, size) {}
     };
 }

@@ -39,7 +39,8 @@ namespace NSWF::tags
             bool hasColorTransform = reader.readFlag();
             bool hasMatrix         = reader.readFlag();
             bool hasCharacter      = reader.readFlag();
-            bool hasMove           = reader.readFlag();
+            // hasMove, unused
+            reader.readFlag();
             // reserved
             reader.readFlag();
             opaqueBackground      = reader.readFlag();

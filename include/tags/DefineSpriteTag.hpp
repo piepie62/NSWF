@@ -20,6 +20,8 @@ namespace NSWF::tags
             } while (controlTags.back()->type() != SwfTagType::End);
         }
 
+        uint16_t getCharacterId() const override { return spriteId; }
+
         uint16_t spriteId;
         uint16_t frameCount;
         std::vector<std::unique_ptr<SwfTag>> controlTags;

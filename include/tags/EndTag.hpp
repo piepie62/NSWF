@@ -7,6 +7,6 @@ namespace NSWF::tags
     class EndTag : public SwfTag
     {
     public:
-        EndTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::End, size) {}
+        EndTag(SwfStreamReader&, size_t size) : SwfTag(SwfTagType::End, size) {}
     };
 }

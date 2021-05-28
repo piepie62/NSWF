@@ -6,10 +6,11 @@
 
 namespace NSWF::tags
 {
-    class DoActionTag : public SwfTag, public CharacterIdTag
+    class DoInitActionTag : public SwfTag, public CharacterIdTag
     {
     public:
-        DoActionTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::DoAction, size)
+        DoInitActionTag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DoInitAction, size)
         {
             spriteId = reader.readU16();
 

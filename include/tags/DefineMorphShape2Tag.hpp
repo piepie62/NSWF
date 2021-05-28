@@ -10,11 +10,11 @@
 
 namespace NSWF::tags
 {
-    class DefineMorphShapeTag : public SwfTag, public CharacterIdTag
+    class DefineMorphShape2Tag : public SwfTag, public CharacterIdTag
     {
     public:
-        DefineMorphShapeTag(SwfStreamReader& reader, size_t size)
-            : SwfTag(SwfTagType::DefineMorphShape, size)
+        DefineMorphShape2Tag(SwfStreamReader& reader, size_t size)
+            : SwfTag(SwfTagType::DefineMorphShape2, size)
         {
             characterId     = reader.readU16();
             startBounds     = reader.readRect();
