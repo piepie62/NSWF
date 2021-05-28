@@ -14,14 +14,16 @@ namespace NSWF::tags
             scenes.reserve(count);
             for (uint32_t i = 0; i < count; i++)
             {
-                scenes.emplace_back(reader.readEncodedU32(), reader.readNTString());
+                uint32_t x = reader.readEncodedU32();
+                scenes.emplace_back(x, reader.readNTString());
             }
 
             count = reader.readEncodedU32();
             frameLabels.reserve(count);
             for (uint32_t i = 0; i < count; i++)
             {
-                frameLabels.emplace_back(reader.readEncodedU32(), reader.readNTString());
+                uint32_t x = reader.readEncodedU32();
+                frameLabels.emplace_back(x, reader.readNTString());
             }
         }
 

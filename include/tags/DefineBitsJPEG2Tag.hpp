@@ -12,7 +12,7 @@ namespace NSWF::tags
             : SwfTag(SwfTagType::DefineBitsJPEG2, size)
         {
             characterId = reader.readU16();
-            imageData   = reader.readBytes(this->dataSize() - 2);
+            imageData   = reader.readBytes(size - 2);
         }
 
         uint16_t getCharacterId() const override { return characterId; }

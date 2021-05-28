@@ -77,8 +77,9 @@
 
 std::unique_ptr<NSWF::tags::SwfTag> NSWF::tags::SwfTag::parseTag(SwfStreamReader& _reader)
 {
-    SwfTagType type = SwfTagType(_reader.readUnsignedBits(10));
-    size_t size     = (size_t)_reader.readUnsignedBits(6);
+    uint16_t tagHeader = _reader.readU16();
+    SwfTagType type    = SwfTagType(tagHeader >> 6);
+    size_t size        = (size_t)tagHeader & 0x3F;
     if (size == 0x3F)
     {
         size = _reader.readU32();

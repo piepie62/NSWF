@@ -12,10 +12,13 @@ namespace NSWF::tags
     public:
         JPEGTablesTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::JPEGTables, size)
         {
-            jpegData = reader.readBytes(this->dataSize() - 2);
-            if (!memcmp(ERROR_HEADER, jpegData.data(), 4))
+            if (size != 0)
             {
-                jpegData.erase(jpegData.begin(), jpegData.begin() + 4);
+                jpegData = reader.readBytes(size);
+                if (!memcmp(ERROR_HEADER, jpegData.data(), 4))
+                {
+                    jpegData.erase(jpegData.begin(), jpegData.begin() + 4);
+                }
             }
         }
 

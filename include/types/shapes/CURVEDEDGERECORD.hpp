@@ -9,6 +9,6 @@ namespace NSWF
         int32_t controlDeltaX;
         int32_t controlDeltaY;
         int32_t anchorDeltaX;
-        int32_t anchorDeltay;
+        int32_t anchorDeltaY;
     };
 }

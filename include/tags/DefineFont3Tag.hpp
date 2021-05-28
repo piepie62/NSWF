@@ -46,13 +46,13 @@ namespace NSWF::tags
             shapeTable.reserve(numGlyphs);
             for (int i = 0; i < numGlyphs; i++)
             {
-                shapeTable.emplace_back(reader.readShape(2));
+                shapeTable.emplace_back(reader.readShape(1));
             }
 
             codeTable.reserve(numGlyphs);
             for (int i = 0; i < numGlyphs; i++)
             {
-                codeTable.emplace_back(reader.readU16());
+                codeTable.emplace_back(wideCodes ? reader.readU16() : reader.readU8());
             }
 
             if (hasLayout)

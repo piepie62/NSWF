@@ -6,6 +6,6 @@ namespace NSWF
 {
     struct RECT
     {
-        intmax_t mXMin, mXMax, mYMin, mYMax;
+        intmax_t xMin, xMax, yMin, yMax;
     };
 }

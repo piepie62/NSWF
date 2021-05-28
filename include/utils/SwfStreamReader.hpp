@@ -109,8 +109,13 @@ namespace NSWF
                 assert(mCurrentByte < mSize);
                 ret <<= bits;
                 ret |=
-                    (mData[mCurrentByte] >> (CHAR_BIT - bits)) & (UCHAR_MAX >> (CHAR_BIT - bits));
+                    (mData[mCurrentByte] >> (mBitsLeft - bits)) & (UCHAR_MAX >> (CHAR_BIT - bits));
                 mBitsLeft -= bits;
+            }
+            if (mBitsLeft == 0)
+            {
+                mCurrentByte++;
+                mBitsLeft = CHAR_BIT;
             }
 
             return ret;
@@ -151,8 +156,8 @@ namespace NSWF
         {
             alignToByte();
             assert(mCurrentByte + 2 <= mSize);
-            uint16_t ret = uint16_t(mData[mCurrentByte++]) << 8;
-            ret |= mData[mCurrentByte++];
+            uint16_t ret = mData[mCurrentByte++];
+            ret |= uint16_t(mData[mCurrentByte++]) << 8;
             return ret;
         }
         int16_t readS16() { return readU16(); }
@@ -161,10 +166,10 @@ namespace NSWF
         {
             alignToByte();
             assert(mCurrentByte + 4 <= mSize);
-            uint32_t ret = uint32_t(mData[mCurrentByte++]) << 24;
-            ret |= uint32_t(mData[mCurrentByte++]) << 16;
+            uint32_t ret = mData[mCurrentByte++];
             ret |= uint32_t(mData[mCurrentByte++]) << 8;
-            ret |= mData[mCurrentByte++];
+            ret |= uint32_t(mData[mCurrentByte++]) << 16;
+            ret |= uint32_t(mData[mCurrentByte++]) << 24;
 
             return ret;
         }
@@ -202,7 +207,6 @@ namespace NSWF
 
         uint32_t readEncodedU32()
         {
-            alignToByte();
             uint32_t ret = readU8();
             if (!(ret & 0x00000080))
             {
@@ -229,7 +233,6 @@ namespace NSWF
 
         std::vector<unsigned char> readBytes(size_t num)
         {
-            alignToByte();
             std::vector<unsigned char> ret(num);
             readBytes(ret.data(), num);
 
@@ -247,7 +250,7 @@ namespace NSWF
         std::string readNTString()
         {
             alignToByte();
-            std::string ret((const char*)mData);
+            std::string ret((const char*)mData + mCurrentByte);
             assert(mCurrentByte + ret.size() + 1 <= mSize);
             mCurrentByte += ret.size() + 1;
             return ret;
@@ -257,34 +260,75 @@ namespace NSWF
         {
             alignToByte();
             assert(mCurrentByte + chars <= mSize);
-            std::string ret((const char*)mData, chars);
+            std::string ret((const char*)mData + mCurrentByte, chars - 1);
             mCurrentByte += chars;
             return ret;
         }
 
         RECT readRect()
         {
-            alignToByte();
             size_t bits = readUnsignedBits(5);
 
-            return {readSignedBits(bits), readSignedBits(bits), readSignedBits(bits),
-                readSignedBits(bits)};
+            RECT ret;
+            ret.xMin = readSignedBits(bits);
+            ret.xMax = readSignedBits(bits);
+            ret.yMin = readSignedBits(bits);
+            ret.yMax = readSignedBits(bits);
+
+            alignToByte();
+
+            return ret;
         }
 
-        RGB readRGB() { return {readU8(), readU8(), readU8()}; }
-        RGBA readRGBA() { return {readU8(), readU8(), readU8(), readU8()}; }
-        ARGB readARGB() { return {readU8(), readU8(), readU8(), readU8()}; }
+        RGB readRGB()
+        {
+            RGB ret;
+            ret.red   = readU8();
+            ret.green = readU8();
+            ret.blue  = readU8();
+            return ret;
+        }
+        RGBA readRGBA()
+        {
+            RGBA ret;
+            ret.red   = readU8();
+            ret.green = readU8();
+            ret.blue  = readU8();
+            ret.alpha = readU8();
+            return ret;
+        }
+        ARGB readARGB()
+        {
+            ARGB ret;
+            ret.alpha = readU8();
+            ret.red   = readU8();
+            ret.green = readU8();
+            ret.blue  = readU8();
+            return ret;
+        }
         PIX15 readPIX15()
         {
-            alignToByte();
-            return {uint8_t(readFlag()), uint8_t(readUnsignedBits(5)), uint8_t(readUnsignedBits(5)),
-                uint8_t(readUnsignedBits(5))};
+            // reserved
+            readFlag();
+            PIX15 ret;
+            ret.red   = uint8_t(readUnsignedBits(5));
+            ret.green = uint8_t(readUnsignedBits(5));
+            ret.blue  = uint8_t(readUnsignedBits(5));
+            return ret;
         }
-        PIX24 readPIX24() { return {readU8(), readU8(), readU8(), readU8()}; }
+        PIX24 readPIX24()
+        {
+            // reserved
+            readU8();
+            PIX24 ret;
+            ret.red   = readU8();
+            ret.green = readU8();
+            ret.blue  = readU8();
+            return ret;
+        }
 
         MATRIX readMatrix()
         {
-            alignToByte();
             MATRIX ret{};
             ret.hasScale = readFlag();
             if (ret.hasScale)
@@ -304,12 +348,13 @@ namespace NSWF
             ret.translateX     = readSignedBits(nTranslateBits);
             ret.translateY     = readSignedBits(nTranslateBits);
 
+            alignToByte();
+
             return ret;
         }
 
         CXFORM readCxform()
         {
-            alignToByte();
             CXFORM ret{};
             ret.hasAddTerms  = readFlag();
             ret.hasMultTerms = readFlag();
@@ -327,12 +372,13 @@ namespace NSWF
                 ret.greenAddTerm = readSignedBits(nBits);
             }
 
+            alignToByte();
+
             return ret;
         }
 
         CXFORMWITHALPHA readCxformWithAlpha()
         {
-            alignToByte();
             CXFORMWITHALPHA ret{};
             ret.hasAddTerms  = readFlag();
             ret.hasMultTerms = readFlag();
@@ -352,6 +398,8 @@ namespace NSWF
                 ret.alphaMultTerm = readSignedBits(nBits);
             }
 
+            alignToByte();
+
             return ret;
         }
 
@@ -363,12 +411,27 @@ namespace NSWF
             {
                 case FILTER::Bevel:
                 {
-                    return {BEVELFILTER{readRGBA(), readRGBA(), readU32(), readU32(), readU32(),
-                        readU32(), readU16(), readFlag(), readFlag(), readFlag(), readFlag()}};
+                    BEVELFILTER ret;
+                    ret.shadowColor     = readRGBA();
+                    ret.highlightColor  = readRGBA();
+                    ret.blurX           = readFixed32();
+                    ret.blurY           = readFixed32();
+                    ret.angle           = readFixed32();
+                    ret.distance        = readFixed32();
+                    ret.strength        = readFixed16();
+                    ret.innerShadow     = readFlag();
+                    ret.knockout        = readFlag();
+                    ret.compositeSource = readFlag();
+                    ret.onTop           = readFlag();
+                    return {ret};
                 }
                 case FILTER::Blur:
                 {
-                    return {BLURFILTER{readU32(), readU32(), (int)readUnsignedBits(5)}};
+                    BLURFILTER ret;
+                    ret.blurX  = readFixed32();
+                    ret.blurY  = readFixed32();
+                    ret.passes = (int)readUnsignedBits(5);
+                    return {ret};
                 }
                 case FILTER::ColorMatrix:
                 {
@@ -400,13 +463,31 @@ namespace NSWF
                 }
                 case FILTER::DropShadow:
                 {
-                    return {DROPSHADOWFILTER{readRGBA(), readU32(), readU32(), readU32(), readU32(),
-                        readU16(), readFlag(), readFlag(), readFlag(), (int)readUnsignedBits(5)}};
+                    DROPSHADOWFILTER ret;
+                    ret.shadowColor     = readRGBA();
+                    ret.blurX           = readFixed32();
+                    ret.blurY           = readFixed32();
+                    ret.angle           = readFixed32();
+                    ret.distance        = readFixed32();
+                    ret.strength        = readFixed16();
+                    ret.innerShadow     = readFlag();
+                    ret.knockout        = readFlag();
+                    ret.compositeSource = readFlag();
+                    ret.passes          = (int)readUnsignedBits(5);
+                    return {ret};
                 }
                 case FILTER::Glow:
                 {
-                    return {GLOWFILTER{readRGBA(), readU32(), readU32(), readU16(), readFlag(),
-                        readFlag(), readFlag(), (int)readUnsignedBits(5)}};
+                    GLOWFILTER ret;
+                    ret.shadowColor     = readRGBA();
+                    ret.blurX           = readFixed32();
+                    ret.blurY           = readFixed32();
+                    ret.strength        = readFixed16();
+                    ret.innerGlow       = readFlag();
+                    ret.knockout        = readFlag();
+                    ret.compositeSource = readFlag();
+                    ret.passes          = (int)readUnsignedBits(5);
+                    return {ret};
                 }
                 case FILTER::GradientBevel:
                 {
@@ -480,15 +561,34 @@ namespace NSWF
         {
             // reserved
             readUnsignedBits(2);
-            return {readFlag(), readFlag(), readFlag(), readFlag(), readFlag(), readFlag(),
-                readU16(), readU16(), readMatrix()};
+            BUTTONRECORD ret;
+            ret.hasBlendMode  = readFlag();
+            ret.hasFilterList = readFlag();
+            ret.stateHitTest  = readFlag();
+            ret.stateDown     = readFlag();
+            ret.stateOver     = readFlag();
+            ret.stateUp       = readFlag();
+            ret.characterId   = readU16();
+            ret.placeDepth    = readU16();
+            ret.placeMatrix   = readMatrix();
+            return ret;
         }
 
         BUTTONRECORD2 readButtonRecord2()
-        { // reserved
+        {
+            // reserved
             readUnsignedBits(2);
-            BUTTONRECORD2 ret{readFlag(), readFlag(), readFlag(), readFlag(), readFlag(),
-                readFlag(), readU16(), readU16(), readMatrix(), readCxformWithAlpha()};
+            BUTTONRECORD2 ret;
+            ret.hasBlendMode   = readFlag();
+            ret.hasFilterList  = readFlag();
+            ret.stateHitTest   = readFlag();
+            ret.stateDown      = readFlag();
+            ret.stateOver      = readFlag();
+            ret.stateUp        = readFlag();
+            ret.characterId    = readU16();
+            ret.placeDepth     = readU16();
+            ret.placeMatrix    = readMatrix();
+            ret.colorTransform = readCxformWithAlpha();
             if (ret.hasFilterList)
             {
                 ret.filters = readFilterList();
@@ -514,9 +614,18 @@ namespace NSWF
 
         BUTTONCONDACTION readButtonCondAction()
         {
-            BUTTONCONDACTION ret{readU16(), readFlag(), readFlag(), readFlag(), readFlag(),
-                readFlag(), readFlag(), readFlag(), readFlag(), (uint8_t)readUnsignedBits(7),
-                readFlag()};
+            BUTTONCONDACTION ret;
+            ret.size              = readU16();
+            ret.idleToOverDown    = readFlag();
+            ret.outDownToIdle     = readFlag();
+            ret.outDownToOverDown = readFlag();
+            ret.overDownToOutDown = readFlag();
+            ret.overDownToOverUp  = readFlag();
+            ret.overUpToOverDown  = readFlag();
+            ret.overUpToIdle      = readFlag();
+            ret.idleToOverUp      = readFlag();
+            ret.keyPress          = (uint8_t)readUnsignedBits(7);
+            ret.overDownToIdle    = readFlag();
 
             while (readU8() != 0)
             {
@@ -527,13 +636,26 @@ namespace NSWF
             return ret;
         }
 
-        SOUNDENVELOPE readSoundEnvelope() { return SOUNDENVELOPE{readU32(), readU16(), readU16()}; }
+        SOUNDENVELOPE readSoundEnvelope()
+        {
+            SOUNDENVELOPE ret;
+            ret.pos44      = readU32();
+            ret.leftLevel  = readU16();
+            ret.rightLevel = readU16();
+            return ret;
+        }
 
         SOUNDINFO readSoundInfo()
         {
             // reserved
             readUnsignedBits(2);
-            SOUNDINFO ret{readFlag(), readFlag(), readFlag(), readFlag(), readFlag(), readFlag()};
+            SOUNDINFO ret;
+            ret.syncStop       = readFlag();
+            ret.syncNoMultiple = readFlag();
+            ret.hasEnvelope    = readFlag();
+            ret.hasLoops       = readFlag();
+            ret.hasOutPoint    = readFlag();
+            ret.hasInPoint     = readFlag();
 
             if (ret.hasInPoint)
             {
@@ -567,30 +689,34 @@ namespace NSWF
                 {
                     int numBits      = (int)readUnsignedBits(4) + 2;
                     bool generalLine = readFlag();
+                    STRAIGHTEDGERECORD ret;
                     if (generalLine)
                     {
-                        return SHAPERECORD{
-                            STRAIGHTEDGERECORD{readSignedBits(numBits), readSignedBits(numBits)}};
+                        ret.deltaX = readSignedBits(numBits);
+                        ret.deltaY = readSignedBits(numBits);
                     }
                     else
                     {
                         if (readFlag()) // is vertical
                         {
-                            return SHAPERECORD{
-                                STRAIGHTEDGERECORD{std::nullopt, readSignedBits(numBits)}};
+                            ret.deltaY = readSignedBits(numBits);
                         }
                         else
                         {
-                            return SHAPERECORD{STRAIGHTEDGERECORD{readSignedBits(numBits)}};
+                            ret.deltaX = readSignedBits(numBits);
                         }
                     }
+                    return SHAPERECORD{ret};
                 }
                 else
                 {
                     int numBits = readUnsignedBits(4) + 2;
-                    return SHAPERECORD{CURVEDEDGERECORD{(int32_t)readSignedBits(numBits),
-                        (int32_t)readSignedBits(numBits), (int32_t)readSignedBits(numBits),
-                        (int32_t)readSignedBits(numBits)}};
+                    CURVEDEDGERECORD ret;
+                    ret.controlDeltaX = (int32_t)readSignedBits(numBits);
+                    ret.controlDeltaY = (int32_t)readSignedBits(numBits);
+                    ret.anchorDeltaX  = (int32_t)readSignedBits(numBits);
+                    ret.anchorDeltaY  = (int32_t)readSignedBits(numBits);
+                    return SHAPERECORD{ret};
                 }
             }
             else
@@ -688,10 +814,11 @@ namespace NSWF
 
         GRADIENT readGradient(bool rgba)
         {
-            GRADIENT ret{GRADIENT::SpreadMode(readUnsignedBits(2)),
-                GRADIENT::InterpolationMode(readUnsignedBits(2))};
-            int gradients       = (int)readUnsignedBits(4);
-            ret.gradientRecords = std::vector<GRADRECORD>(gradients);
+            GRADIENT ret;
+            ret.spreadMode        = GRADIENT::SpreadMode(readUnsignedBits(2));
+            ret.interpolationMode = GRADIENT::InterpolationMode(readUnsignedBits(2));
+            int gradients         = (int)readUnsignedBits(4);
+            ret.gradientRecords   = std::vector<GRADRECORD>(gradients);
             for (auto& record : ret.gradientRecords)
             {
                 record = readGradRecord(rgba);
@@ -702,10 +829,11 @@ namespace NSWF
 
         FOCALGRADIENT readFocalGradient(bool rgba)
         {
-            FOCALGRADIENT ret{FOCALGRADIENT::SpreadMode(readUnsignedBits(2)),
-                FOCALGRADIENT::InterpolationMode(readUnsignedBits(2))};
-            int gradients       = (int)readUnsignedBits(4);
-            ret.gradientRecords = std::vector<GRADRECORD>(gradients);
+            FOCALGRADIENT ret;
+            ret.spreadMode        = FOCALGRADIENT::SpreadMode(readUnsignedBits(2));
+            ret.interpolationMode = FOCALGRADIENT::InterpolationMode(readUnsignedBits(2));
+            int gradients         = (int)readUnsignedBits(4);
+            ret.gradientRecords   = std::vector<GRADRECORD>(gradients);
             for (auto& record : ret.gradientRecords)
             {
                 record = readGradRecord(rgba);
@@ -715,14 +843,28 @@ namespace NSWF
             return ret;
         }
 
-        GRADRECORD readGradRecord(bool rgba) { return {readU8(), rgba ? readRGBA() : readRGB()}; }
+        GRADRECORD readGradRecord(bool rgba)
+        {
+            GRADRECORD ret;
+            ret.ratio = readU8();
+            ret.color = rgba ? readRGBA() : readRGB();
+            return ret;
+        }
 
-        LINESTYLE readLineStyle(bool rgba) { return {readU16(), rgba ? readRGBA() : readRGB()}; }
+        LINESTYLE readLineStyle(bool rgba)
+        {
+            LINESTYLE ret;
+            ret.width = readU16();
+            ret.color = rgba ? readRGBA() : readRGB();
+            return ret;
+        }
 
         LINESTYLE2 readLineStyle2()
         {
-            LINESTYLE2 ret{readU16(), LINESTYLE2::CapStyle(readUnsignedBits(2)),
-                LINESTYLE2::JoinStyle(readUnsignedBits(2))};
+            LINESTYLE2 ret;
+            ret.width         = readU16();
+            ret.startCapStyle = LINESTYLE2::CapStyle(readUnsignedBits(2));
+            ret.joinStyle     = LINESTYLE2::JoinStyle(readUnsignedBits(2));
 
             bool hasFill              = readFlag();
             ret.noHorizThicknessScale = readFlag();
@@ -786,14 +928,16 @@ namespace NSWF
             {
                 ret.records.emplace_back(readShapeRecord(shapeTagNumber, numFillBits, numLineBits));
             }
+            alignToByte();
 
             return ret;
         }
 
         SHAPEWITHSTYLE readShapeWithStyle(int shapeTagNumber)
         {
-            SHAPEWITHSTYLE ret{
-                readFillStyleArray(shapeTagNumber >= 3), readLineStyleArray(shapeTagNumber)};
+            SHAPEWITHSTYLE ret;
+            ret.fillStyles = readFillStyleArray(shapeTagNumber >= 3);
+            ret.lineStyles = readLineStyleArray(shapeTagNumber);
 
             int numFillBits = (int)readUnsignedBits(4);
             int numLineBits = (int)readUnsignedBits(4);
@@ -809,16 +953,29 @@ namespace NSWF
 
         KERNINGRECORD readKerningRecord(bool wideCodes)
         {
-            return {wideCodes ? readU16() : (uint16_t)readU8(),
-                wideCodes ? readU16() : (uint16_t)readU8(), readS16()};
+            KERNINGRECORD ret;
+            ret.char1      = wideCodes ? readU16() : (uint16_t)readU8();
+            ret.char2      = wideCodes ? readU16() : (uint16_t)readU8();
+            ret.adjustment = readS16();
+            return ret;
         }
 
-        ZONEDATA readZoneData() { return {readFloat16(), readFloat16()}; }
+        ZONEDATA readZoneData()
+        {
+            ZONEDATA ret;
+            ret.alignmentCoordinate = readFloat16();
+            ret.range               = readFloat16();
+            return ret;
+        }
 
         ZONERECORD readZoneRecord()
         {
             int numData = readU8();
             ZONERECORD ret{std::vector<ZONEDATA>(numData)};
+            for (auto& data : ret.zoneData)
+            {
+                data = readZoneData();
+            }
             // reserved
             readUnsignedBits(6);
             ret.hasY = readFlag();
@@ -877,14 +1034,21 @@ namespace NSWF
 
         MORPHLINESTYLE readMorphLineStyle()
         {
-            return {readU16(), readU16(), readRGBA(), readRGBA()};
+            MORPHLINESTYLE ret;
+            ret.startWidth = readU16();
+            ret.endWidth   = readU16();
+            ret.startColor = readRGBA();
+            ret.endColor   = readRGBA();
+            return ret;
         }
 
         MORPHLINESTYLE2 readMorphLineStyle2()
         {
-            MORPHLINESTYLE2 ret{readU16(), readU16(),
-                MORPHLINESTYLE2::CapStyle(readUnsignedBits(2)),
-                MORPHLINESTYLE2::JoinStyle(readUnsignedBits(2))};
+            MORPHLINESTYLE2 ret;
+            ret.startWidth            = readU16();
+            ret.endWidth              = readU16();
+            ret.startCapStyle         = MORPHLINESTYLE2::CapStyle(readUnsignedBits(2));
+            ret.joinStyle             = MORPHLINESTYLE2::JoinStyle(readUnsignedBits(2));
             bool hasFill              = readFlag();
             ret.noHorizThicknessScale = readFlag();
             ret.noVertThicknessScale  = readFlag();
@@ -948,9 +1112,10 @@ namespace NSWF
         MORPHGRADIENT readMorphGradient()
         {
             int numGrads = readU8();
-            MORPHGRADIENT ret{MORPHGRADIENT::SpreadMode(readUnsignedBits(2)),
-                MORPHGRADIENT::InterpolationMode(readUnsignedBits(2)),
-                std::vector<MORPHGRADRECORD>(numGrads)};
+            MORPHGRADIENT ret;
+            ret.spreadMode        = MORPHGRADIENT::SpreadMode(readUnsignedBits(2));
+            ret.interpolationMode = MORPHGRADIENT::InterpolationMode(readUnsignedBits(2));
+            ret.gradientRecords   = std::vector<MORPHGRADRECORD>(numGrads);
 
             for (auto& record : ret.gradientRecords)
             {
@@ -962,13 +1127,17 @@ namespace NSWF
 
         MORPHGRADRECORD readMorphGradRecord()
         {
-            return {readU8(), readRGBA(), readU8(), readRGBA()};
+            MORPHGRADRECORD ret;
+            ret.startRatio = readU8();
+            ret.startColor = readRGBA();
+            ret.endRatio   = readU8();
+            ret.endColor   = readRGBA();
+            return ret;
         }
 
         TEXTRECORD readTextRecord(int defineTagNum, int glyphBits, int advanceBits)
         {
             // type (always 1) and 3 reserved flags
-            alignToByte();
             readUnsignedBits(4);
             bool hasFont    = readFlag();
             bool hasColor   = readFlag();
@@ -1004,12 +1173,17 @@ namespace NSWF
                 ret.glyphs.emplace_back(readGlyphEntry(glyphBits, advanceBits));
             }
 
+            alignToByte();
+
             return ret;
         }
 
         GLYPHENTRY readGlyphEntry(int glyphBits, int advanceBits)
         {
-            return {readUnsignedBits(glyphBits), readSignedBits(advanceBits)};
+            GLYPHENTRY ret;
+            ret.index   = readUnsignedBits(glyphBits);
+            ret.advance = readUnsignedBits(advanceBits);
+            return ret;
         }
 
         CLIPACTIONRECORD readClipActionRecord()
@@ -1033,9 +1207,23 @@ namespace NSWF
 
         CLIPEVENTFLAGS readClipEventFlags()
         {
-            CLIPEVENTFLAGS ret{readFlag(), readFlag(), readFlag(), readFlag(), readFlag(),
-                readFlag(), readFlag(), readFlag(), readFlag(), readFlag(), readFlag(), readFlag(),
-                readFlag(), readFlag(), readFlag(), readFlag()};
+            CLIPEVENTFLAGS ret;
+            ret.clipEventKeyUp          = readFlag();
+            ret.clipEventKeyDown        = readFlag();
+            ret.clipEventMouseUp        = readFlag();
+            ret.clipEventMouseDown      = readFlag();
+            ret.clipEventMouseMove      = readFlag();
+            ret.clipEventUnload         = readFlag();
+            ret.clipEventEnterFrame     = readFlag();
+            ret.clipEventLoad           = readFlag();
+            ret.clipEventDragOver       = readFlag();
+            ret.clipEventRollOut        = readFlag();
+            ret.clipEventRollOver       = readFlag();
+            ret.clipEventReleaseOutside = readFlag();
+            ret.clipEventRelease        = readFlag();
+            ret.clipEventPress          = readFlag();
+            ret.clipEventInitialize     = readFlag();
+            ret.clipEventData           = readFlag();
             // reserved
             readUnsignedBits(5);
             ret.clipEventConstruct = readFlag();

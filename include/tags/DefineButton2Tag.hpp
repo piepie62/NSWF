@@ -27,7 +27,7 @@ namespace NSWF::tags
 
             if (actionOffset != 0)
             {
-                size_t leftoverSize = dataSize() - 3 - actionOffset;
+                size_t leftoverSize = size - 3 - actionOffset;
 
                 while (leftoverSize != 0)
                 {

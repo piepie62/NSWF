@@ -22,7 +22,7 @@ namespace NSWF::tags
             // I don't get where I'm supposed to get glyphCount from, so... there are only ever
             // supposed to be 2 ZoneData entries, making the size of ZoneRecord predictable.
             // I hate it here
-            int glyphCount = (this->dataSize() - 3) / 10;
+            int glyphCount = (size - 3) / 10;
 
             zoneTable.reserve(glyphCount);
             for (int i = 0; i < glyphCount; i++)

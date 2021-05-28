@@ -13,7 +13,7 @@ namespace NSWF::tags
         DefineBitsTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::DefineBits, size)
         {
             characterId = reader.readU16();
-            imageData   = reader.readBytes(this->dataSize() - 2);
+            imageData   = reader.readBytes(size - 2);
             if (!memcmp(ERROR_HEADER, imageData.data(), 4))
             {
                 imageData.erase(imageData.begin(), imageData.begin() + 4);

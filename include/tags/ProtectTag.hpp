@@ -11,6 +11,8 @@ namespace NSWF::tags
     public:
         ProtectTag(SwfStreamReader& reader, size_t size) : SwfTag(SwfTagType::Protect, size)
         {
+            // reserved
+            reader.readU16();
             if (size != 0)
             {
                 password = reader.readNTString();

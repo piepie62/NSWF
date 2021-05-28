@@ -34,19 +34,22 @@ namespace NSWF::tags
             }
 
             // Code table offset?
-            if (wideOffsets)
+            if (numGlyphs > 0 || hasLayout)
             {
-                reader.readU32();
-            }
-            else
-            {
-                reader.readU16();
+                if (wideOffsets)
+                {
+                    reader.readU32();
+                }
+                else
+                {
+                    reader.readU16();
+                }
             }
 
             shapeTable.reserve(numGlyphs);
             for (int i = 0; i < numGlyphs; i++)
             {
-                shapeTable.emplace_back(reader.readShape(2));
+                shapeTable.emplace_back(reader.readShape(1));
             }
 
             codeTable.reserve(numGlyphs);

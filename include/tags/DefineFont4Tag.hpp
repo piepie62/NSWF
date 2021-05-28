@@ -20,7 +20,7 @@ namespace NSWF::tags
             fontName         = reader.readNTString();
             if (hasFontData)
             {
-                fontData = reader.readBytes(this->dataSize() - fontName.size() - 1 - 3);
+                fontData = reader.readBytes(size - fontName.size() - 1 - 3);
             }
         }
 

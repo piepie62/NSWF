@@ -15,7 +15,7 @@ namespace NSWF::tags
             characterId       = reader.readU16();
             uint32_t jpegSize = reader.readU32();
             jpegData          = reader.readBytes(jpegSize);
-            alphaData         = reader.decompressZlibFromStream(dataSize() - jpegSize - 6);
+            alphaData         = reader.decompressZlibFromStream(size - jpegSize - 6);
         }
 
         uint16_t getCharacterId() const override { return characterId; };

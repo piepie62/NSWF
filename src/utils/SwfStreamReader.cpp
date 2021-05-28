@@ -7,10 +7,12 @@ std::vector<unsigned char> NSWF::SwfStreamReader::decompressZlibFromStream(
     size_t compressedBytes, size_t startingAlloc)
 {
     alignToByte();
+    assert(mCurrentByte + compressedBytes <= mSize);
 
     std::vector<unsigned char> ret(startingAlloc ? startingAlloc : DECOMPRESS_BLOCK);
 
     z_stream stream;
+    memset(&stream, 0, sizeof(z_stream));
     stream.next_in   = const_cast<unsigned char*>(mData + mCurrentByte);
     stream.avail_in  = compressedBytes;
     stream.next_out  = ret.data();
@@ -41,6 +43,8 @@ std::vector<unsigned char> NSWF::SwfStreamReader::decompressZlibFromStream(
 
     inflateEnd(&stream);
 
+    mCurrentByte += compressedBytes;
+
     return ret;
 }
 
@@ -48,14 +52,15 @@ std::vector<unsigned char> NSWF::SwfStreamReader::decompressLzmaFromStream(
     size_t compressedSize, size_t startingAlloc)
 {
     alignToByte();
+    assert(mCurrentByte + compressedSize <= mSize);
 
     std::vector<unsigned char> ret(startingAlloc ? startingAlloc : DECOMPRESS_BLOCK);
 
-    lzma_stream stream;
-    stream.next_in   = const_cast<unsigned char*>(mData + mCurrentByte);
-    stream.avail_in  = compressedSize;
-    stream.next_out  = ret.data();
-    stream.avail_out = ret.size();
+    lzma_stream stream = LZMA_STREAM_INIT;
+    stream.next_in     = const_cast<unsigned char*>(mData + mCurrentByte);
+    stream.avail_in    = compressedSize;
+    stream.next_out    = ret.data();
+    stream.avail_out   = ret.size();
 
     lzma_ret code = lzma_auto_decoder(&stream, UINT64_MAX, 0);
     if (code != LZMA_OK)
@@ -81,6 +86,8 @@ std::vector<unsigned char> NSWF::SwfStreamReader::decompressLzmaFromStream(
     ret.resize(ret.size() - stream.avail_out);
 
     lzma_end(&stream);
+
+    mCurrentByte += compressedSize;
 
     return ret;
 }

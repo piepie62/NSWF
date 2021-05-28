@@ -15,7 +15,7 @@ namespace NSWF::tags
             characterId = reader.readU16();
             // reserved
             reader.readU32();
-            data = reader.readBytes(this->dataSize() - 6);
+            data = reader.readBytes(size - 6);
         }
 
         uint16_t getCharacterId() const override { return characterId; }

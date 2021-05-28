@@ -12,20 +12,22 @@ namespace NSWF::tags
         {
             // reserved
             reader.readFlag();
-            mUseDirectBlit = reader.readFlag();
-            mUseGpu        = reader.readFlag();
-            mHasMetadata   = reader.readFlag();
-            mAS3           = reader.readFlag();
+            useDirectBlit      = reader.readFlag();
+            useGpu             = reader.readFlag();
+            hasMetadata        = reader.readFlag();
+            AS3                = reader.readFlag();
+            noCrossDomainCache = reader.readFlag();
             // reserved
-            reader.readUnsignedBits(2);
-            mUseNetwork = reader.readFlag();
+            reader.readFlag();
+            useNetwork = reader.readFlag();
             reader.readUnsignedBits(24);
         }
 
-        bool mUseDirectBlit;
-        bool mUseGpu;
-        bool mHasMetadata;
-        bool mAS3;
-        bool mUseNetwork;
+        bool useDirectBlit;
+        bool useGpu;
+        bool hasMetadata;
+        bool AS3;
+        bool noCrossDomainCache;
+        bool useNetwork;
     };
 }

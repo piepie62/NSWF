@@ -28,8 +28,7 @@ namespace NSWF::tags
             }
 
             std::vector<unsigned char> rawData = reader.decompressZlibFromStream(
-                pixelFormat == PixelFormat::ColorMap8 ? this->dataSize() - 8
-                                                      : this->dataSize() - 7);
+                pixelFormat == PixelFormat::ColorMap8 ? size - 8 : size - 7);
 
             SwfStreamReader bitmapReader{rawData.data(), rawData.size()};
             switch (pixelFormat)
