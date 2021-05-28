@@ -15,7 +15,8 @@ namespace NSWF::tags
 
             for (int i = 0; i < count; i++)
             {
-                assets.emplace_back(reader.readU16(), reader.readNTString());
+                uint16_t character = reader.readU16();
+                assets.emplace_back(character, reader.readNTString());
             }
         }
 

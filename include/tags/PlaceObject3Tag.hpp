@@ -43,7 +43,7 @@ namespace NSWF::tags
             reader.readFlag();
             // reserved
             reader.readFlag();
-            opaqueBackground      = reader.readFlag();
+            bool opaqueBackground = reader.readFlag();
             bool hasVisible       = reader.readFlag();
             bool hasImage         = reader.readFlag();
             bool hasClassName     = reader.readFlag();
@@ -52,7 +52,7 @@ namespace NSWF::tags
             bool hasFilterList    = reader.readFlag();
 
             depth = reader.readU16();
-            if (hasClassName || (hasImage && hasCharacter))
+            if (hasClassName)
             {
                 className = reader.readNTString();
             }
@@ -66,7 +66,7 @@ namespace NSWF::tags
             }
             if (hasColorTransform)
             {
-                colorTransform = reader.readCxform();
+                colorTransform = reader.readCxformWithAlpha();
             }
             if (hasRatio)
             {
@@ -95,6 +95,9 @@ namespace NSWF::tags
             if (hasVisible)
             {
                 visible = (bool)reader.readU8();
+            }
+            if (opaqueBackground)
+            {
                 bgColor = reader.readRGBA();
             }
             if (hasClipActions)
@@ -112,12 +115,11 @@ namespace NSWF::tags
             }
         }
 
-        bool opaqueBackground;
         uint16_t depth;
         std::optional<std::string> className;
         std::optional<uint16_t> characterId;
         std::optional<MATRIX> matrix;
-        std::optional<CXFORM> colorTransform;
+        std::optional<CXFORMWITHALPHA> colorTransform;
         std::optional<uint16_t> ratio;
         std::optional<std::string> name;
         std::optional<uint16_t> clipDepth;
