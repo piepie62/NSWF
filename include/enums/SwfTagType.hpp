@@ -97,6 +97,7 @@ namespace NSWF::tags
         DefineBitsJPEG4              = 90,
         DefineFont4                  = 91,
         /* Undefined = 92 */
-        EnableTelemetry = 93
+        EnableTelemetry = 93,
+        PlaceObject4    = 94
     };
 }

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "CXFORMWITHALPHA.hpp"
-#include "FILTERLIST.hpp"
+#include "FILTER.hpp"
 #include "MATRIX.hpp"
+#include <vector>
 
 namespace NSWF
 {
@@ -18,7 +19,7 @@ namespace NSWF
         int placeDepth;
         MATRIX placeMatrix;
         CXFORMWITHALPHA colorTransform;
-        FILTERLIST filters;
+        std::vector<FILTER> filters;
         enum BlendMode
         {
             Normal0,

@@ -4,7 +4,6 @@
 #include "utils/SwfStreamReader.hpp"
 #include <cstdint>
 #include <memory>
-#include <vector>
 
 namespace NSWF::tags
 {

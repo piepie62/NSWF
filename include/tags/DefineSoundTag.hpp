@@ -1,6 +1,7 @@
 #pragma once
 
 #include "enums/AudioFormat.hpp"
+#include "enums/SoundRate.hpp"
 #include "tags/abstract/CharacterIdTag.hpp"
 #include "tags/abstract/SwfTag.hpp"
 #include <cstdint>
@@ -26,13 +27,7 @@ namespace NSWF::tags
 
         uint16_t soundId;
         AudioFormat format;
-        enum class SoundRate
-        {
-            KHz5_5,
-            KHz11,
-            KHz22,
-            KHz44
-        } rate;
+        SoundRate rate;
 
         bool uncompressedIs16Bit;
         bool stereo;

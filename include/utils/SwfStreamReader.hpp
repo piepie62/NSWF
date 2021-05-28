@@ -5,10 +5,12 @@
 #include "types/BUTTONCONDACTION.hpp"
 #include "types/BUTTONRECORD.hpp"
 #include "types/BUTTONRECORD2.hpp"
+#include "types/CLIPACTIONRECORD.hpp"
+#include "types/CLIPEVENTFLAGS.hpp"
 #include "types/CXFORM.hpp"
 #include "types/CXFORMWITHALPHA.hpp"
 #include "types/FILTER.hpp"
-#include "types/FILTERLIST.hpp"
+#include "types/GLYPHENTRY.hpp"
 #include "types/KERNINGRECORD.hpp"
 #include "types/MATRIX.hpp"
 #include "types/MORPHFILLSTYLE.hpp"
@@ -26,6 +28,7 @@
 #include "types/SHAPEWITHSTYLE.hpp"
 #include "types/SOUNDENVELOPE.hpp"
 #include "types/SOUNDINFO.hpp"
+#include "types/TEXTRECORD.hpp"
 #include "types/ZONEDATA.hpp"
 #include "types/ZONERECORD.hpp"
 #include "types/basic/fixed16.hpp"
@@ -56,11 +59,34 @@ namespace NSWF
         {
         }
 
-        // Does not advance the parent stream
-        SwfStreamReader subStream(size_t size)
+        SwfStreamReader subStream(size_t size, bool advanceThis = false)
         {
             assert(mCurrentByte + size <= mSize);
-            return SwfStreamReader{mData + mCurrentByte, size};
+            SwfStreamReader ret{mData + mCurrentByte, size};
+            if (advanceThis)
+            {
+                mCurrentByte += size;
+            }
+            return ret;
+        }
+
+        bool finished() const { return mCurrentByte == mSize; }
+
+        bool finishedInLessThanOneByte() const
+        {
+            return finished() || (mCurrentByte == mSize - 1 && mBitsLeft < CHAR_BIT);
+        }
+
+        void backtrack(size_t amount = 1)
+        {
+            if (amount > mCurrentByte)
+            {
+                mCurrentByte = 0;
+            }
+            else
+            {
+                mCurrentByte -= amount;
+            }
         }
 
         uintmax_t readUnsignedBits(size_t bits)
@@ -439,27 +465,15 @@ namespace NSWF
             }
         }
 
-        FILTERLIST readFilterList()
+        std::vector<FILTER> readFilterList()
         {
             int numFilters = readU8();
-            FILTERLIST ret{std::vector<FILTER>(numFilters)};
-            for (auto& filter : ret.filters)
+            std::vector<FILTER> ret(numFilters);
+            for (auto& filter : ret)
             {
                 filter = readFilter();
             }
             return ret;
-        }
-
-        void backtrack(size_t amount = 1)
-        {
-            if (amount > mCurrentByte)
-            {
-                mCurrentByte = 0;
-            }
-            else
-            {
-                mCurrentByte -= amount;
-            }
         }
 
         BUTTONRECORD readButtonRecord()
@@ -949,6 +963,88 @@ namespace NSWF
         MORPHGRADRECORD readMorphGradRecord()
         {
             return {readU8(), readRGBA(), readU8(), readRGBA()};
+        }
+
+        TEXTRECORD readTextRecord(int defineTagNum, int glyphBits, int advanceBits)
+        {
+            // type (always 1) and 3 reserved flags
+            alignToByte();
+            readUnsignedBits(4);
+            bool hasFont    = readFlag();
+            bool hasColor   = readFlag();
+            bool hasYOffset = readFlag();
+            bool hasXOffset = readFlag();
+
+            TEXTRECORD ret;
+            if (hasFont)
+            {
+                ret.fontId = readU16();
+            }
+            if (hasColor)
+            {
+                ret.color = defineTagNum == 1 ? readRGB() : readRGBA();
+            }
+            if (hasXOffset)
+            {
+                ret.xOffset = readS16();
+            }
+            if (hasYOffset)
+            {
+                ret.yOffset = readS16();
+            }
+            if (hasFont)
+            {
+                ret.textHeight = readU16();
+            }
+
+            int glyphCount = readU8();
+            ret.glyphs.reserve(glyphCount);
+            for (int i = 0; i < glyphCount; i++)
+            {
+                ret.glyphs.emplace_back(readGlyphEntry(glyphBits, advanceBits));
+            }
+
+            return ret;
+        }
+
+        GLYPHENTRY readGlyphEntry(int glyphBits, int advanceBits)
+        {
+            return {readUnsignedBits(glyphBits), readSignedBits(advanceBits)};
+        }
+
+        CLIPACTIONRECORD readClipActionRecord()
+        {
+            CLIPACTIONRECORD ret{readClipEventFlags()};
+            // Unnecessary
+            size_t recordsSize = readU32();
+            if (ret.events.clipEventKeyPress)
+            {
+                ret.keyCode = readU8();
+            }
+            size_t readSize = 0;
+            while (readSize < recordsSize)
+            {
+                ret.actions.emplace_back(readActionRecord());
+                readSize += ret.actions.back().actionData.size() + 1;
+            }
+
+            return ret;
+        }
+
+        CLIPEVENTFLAGS readClipEventFlags()
+        {
+            CLIPEVENTFLAGS ret{readFlag(), readFlag(), readFlag(), readFlag(), readFlag(),
+                readFlag(), readFlag(), readFlag(), readFlag(), readFlag(), readFlag(), readFlag(),
+                readFlag(), readFlag(), readFlag(), readFlag()};
+            // reserved
+            readUnsignedBits(5);
+            ret.clipEventConstruct = readFlag();
+            ret.clipEventKeyPress  = readFlag();
+            ret.clipEventDragOut   = readFlag();
+            // reserved
+            readUnsignedBits(8);
+
+            return ret;
         }
 
         std::vector<unsigned char> decompressZlibFromStream(
