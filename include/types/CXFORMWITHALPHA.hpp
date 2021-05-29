@@ -4,15 +4,13 @@ namespace NSWF
 {
     struct CXFORMWITHALPHA
     {
-        bool hasAddTerms;
-        bool hasMultTerms;
-        int redMultTerm;
-        int greenMultTerm;
-        int blueMultTerm;
-        int alphaMultTerm;
-        int redAddTerm;
-        int greenAddTerm;
-        int blueAddTerm;
-        int alphaAddTerm;
+        std::optional<int> redMultTerm;
+        std::optional<int> greenMultTerm;
+        std::optional<int> blueMultTerm;
+        std::optional<int> alphaMultTerm;
+        std::optional<int> redAddTerm;
+        std::optional<int> greenAddTerm;
+        std::optional<int> blueAddTerm;
+        std::optional<int> alphaAddTerm;
     };
 }

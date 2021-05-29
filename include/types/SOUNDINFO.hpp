@@ -10,13 +10,9 @@ namespace NSWF
     {
         bool syncStop;
         bool syncNoMultiple;
-        bool hasEnvelope;
-        bool hasLoops;
-        bool hasOutPoint;
-        bool hasInPoint;
-        uint32_t inPoint;
-        uint32_t outPoint;
-        uint16_t loopCount;
-        std::vector<SOUNDENVELOPE> envelopeRecords;
+        std::optional<uint32_t> inPoint;
+        std::optional<uint32_t> outPoint;
+        std::optional<uint16_t> loopCount;
+        std::optional<std::vector<SOUNDENVELOPE>> envelopeRecords;
     };
 }

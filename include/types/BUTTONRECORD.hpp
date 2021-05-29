@@ -1,13 +1,12 @@
 #pragma once
 
 #include "MATRIX.hpp"
+#include <vector>
 
 namespace NSWF
 {
     struct BUTTONRECORD
     {
-        bool hasBlendMode;
-        bool hasFilterList;
         bool stateHitTest;
         bool stateDown;
         bool stateOver;

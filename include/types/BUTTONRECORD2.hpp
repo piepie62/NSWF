@@ -3,14 +3,13 @@
 #include "CXFORMWITHALPHA.hpp"
 #include "FILTER.hpp"
 #include "MATRIX.hpp"
+#include <optional>
 #include <vector>
 
 namespace NSWF
 {
     struct BUTTONRECORD2
     {
-        bool hasBlendMode;
-        bool hasFilterList;
         bool stateHitTest;
         bool stateDown;
         bool stateOver;
@@ -19,7 +18,7 @@ namespace NSWF
         int placeDepth;
         MATRIX placeMatrix;
         CXFORMWITHALPHA colorTransform;
-        std::vector<FILTER> filters;
+        std::optional<std::vector<FILTER>> filters;
         enum BlendMode
         {
             Normal0,
@@ -37,6 +36,7 @@ namespace NSWF
             Erase,
             Overlay,
             Hardlight
-        } blendmode;
+        };
+        std::optional<BlendMode> blendmode;
     };
 }

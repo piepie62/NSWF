@@ -330,15 +330,15 @@ namespace NSWF
         MATRIX readMatrix()
         {
             MATRIX ret{};
-            ret.hasScale = readFlag();
-            if (ret.hasScale)
+            // hasScale
+            if (readFlag())
             {
                 int nScaleBits = readUnsignedBits(5);
                 ret.scaleX     = readUnsignedBits(nScaleBits);
                 ret.scaleY     = readUnsignedBits(nScaleBits);
             }
-            ret.hasRotate = readFlag();
-            if (ret.hasRotate)
+            // hasRotate
+            if (readFlag())
             {
                 int nRotateBits = readUnsignedBits(5);
                 ret.rotateSkew0 = readUnsignedBits(nRotateBits);
@@ -356,16 +356,16 @@ namespace NSWF
         CXFORM readCxform()
         {
             CXFORM ret{};
-            ret.hasAddTerms  = readFlag();
-            ret.hasMultTerms = readFlag();
-            int nBits        = readUnsignedBits(4);
-            if (ret.hasMultTerms)
+            bool hasAddTerms  = readFlag();
+            bool hasMultTerms = readFlag();
+            int nBits         = readUnsignedBits(4);
+            if (hasMultTerms)
             {
                 ret.redMultTerm   = readSignedBits(nBits);
                 ret.blueMultTerm  = readSignedBits(nBits);
                 ret.greenMultTerm = readSignedBits(nBits);
             }
-            if (ret.hasAddTerms)
+            if (hasAddTerms)
             {
                 ret.redAddTerm   = readSignedBits(nBits);
                 ret.blueAddTerm  = readSignedBits(nBits);
@@ -380,17 +380,17 @@ namespace NSWF
         CXFORMWITHALPHA readCxformWithAlpha()
         {
             CXFORMWITHALPHA ret{};
-            ret.hasAddTerms  = readFlag();
-            ret.hasMultTerms = readFlag();
-            int nBits        = readUnsignedBits(4);
-            if (ret.hasMultTerms)
+            bool hasAddTerms  = readFlag();
+            bool hasMultTerms = readFlag();
+            int nBits         = readUnsignedBits(4);
+            if (hasMultTerms)
             {
                 ret.redMultTerm   = readSignedBits(nBits);
                 ret.blueMultTerm  = readSignedBits(nBits);
                 ret.greenMultTerm = readSignedBits(nBits);
                 ret.alphaMultTerm = readSignedBits(nBits);
             }
-            if (ret.hasAddTerms)
+            if (hasAddTerms)
             {
                 ret.redAddTerm    = readSignedBits(nBits);
                 ret.blueAddTerm   = readSignedBits(nBits);
@@ -562,15 +562,17 @@ namespace NSWF
             // reserved
             readUnsignedBits(2);
             BUTTONRECORD ret;
-            ret.hasBlendMode  = readFlag();
-            ret.hasFilterList = readFlag();
-            ret.stateHitTest  = readFlag();
-            ret.stateDown     = readFlag();
-            ret.stateOver     = readFlag();
-            ret.stateUp       = readFlag();
-            ret.characterId   = readU16();
-            ret.placeDepth    = readU16();
-            ret.placeMatrix   = readMatrix();
+            // would be hasBlendMode and hasFilterList, but those are absent in the first type of
+            // buttonrecord
+            readFlag();
+            readFlag();
+            ret.stateHitTest = readFlag();
+            ret.stateDown    = readFlag();
+            ret.stateOver    = readFlag();
+            ret.stateUp      = readFlag();
+            ret.characterId  = readU16();
+            ret.placeDepth   = readU16();
+            ret.placeMatrix  = readMatrix();
             return ret;
         }
 
@@ -579,8 +581,8 @@ namespace NSWF
             // reserved
             readUnsignedBits(2);
             BUTTONRECORD2 ret;
-            ret.hasBlendMode   = readFlag();
-            ret.hasFilterList  = readFlag();
+            bool hasBlendMode  = readFlag();
+            bool hasFilterList = readFlag();
             ret.stateHitTest   = readFlag();
             ret.stateDown      = readFlag();
             ret.stateOver      = readFlag();
@@ -589,11 +591,11 @@ namespace NSWF
             ret.placeDepth     = readU16();
             ret.placeMatrix    = readMatrix();
             ret.colorTransform = readCxformWithAlpha();
-            if (ret.hasFilterList)
+            if (hasFilterList)
             {
                 ret.filters = readFilterList();
             }
-            if (ret.hasBlendMode)
+            if (hasBlendMode)
             {
                 ret.blendmode = BUTTONRECORD2::BlendMode(readU8());
             }
@@ -652,24 +654,24 @@ namespace NSWF
             SOUNDINFO ret;
             ret.syncStop       = readFlag();
             ret.syncNoMultiple = readFlag();
-            ret.hasEnvelope    = readFlag();
-            ret.hasLoops       = readFlag();
-            ret.hasOutPoint    = readFlag();
-            ret.hasInPoint     = readFlag();
+            bool hasEnvelope   = readFlag();
+            bool hasLoops      = readFlag();
+            bool hasOutPoint   = readFlag();
+            bool hasInPoint    = readFlag();
 
-            if (ret.hasInPoint)
+            if (hasInPoint)
             {
                 ret.inPoint = readU32();
             }
-            if (ret.hasOutPoint)
+            if (hasOutPoint)
             {
-                ret.outPoint = readU32();
+                tet.outPoint = readU32();
             }
-            if (ret.hasLoops)
+            if (hasLoops)
             {
                 ret.loopCount = readU16();
             }
-            if (ret.hasEnvelope)
+            if (hasEnvelope)
             {
                 ret.envelopeRecords = std::vector<SOUNDENVELOPE>(readU8());
                 for (auto& envelope : ret.envelopeRecords)
