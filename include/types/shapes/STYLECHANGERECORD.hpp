@@ -12,13 +12,6 @@ namespace NSWF
 {
     struct STYLECHANGERECORD
     {
-        bool stateNewStyles;
-        bool stateLineStyle;
-        bool stateFillStyle1;
-        bool stateFillStyle0;
-        bool stateMoveTo;
-
-        std::optional<uint8_t> moveBits;
         std::optional<int32_t> moveDeltaX;
         std::optional<int32_t> moveDeltaY;
 
